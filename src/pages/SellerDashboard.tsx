@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, LineChart, PieChart } from '@/components/ui/chart';
+import { BarChart, LineChart, PieChart } from '@/components/ui/chart-components';
 import { 
   Package, ShoppingBag, Users, CreditCard, 
   BarChart3, Home, Settings, LogOut, PlusCircle
