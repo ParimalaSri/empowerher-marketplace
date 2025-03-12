@@ -6,6 +6,7 @@ import Categories from '@/components/Categories';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
+import ChatBot from '@/components/ChatBot';
 
 const Index = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -32,6 +33,7 @@ const Index = () => {
         <Testimonials />
       </main>
       <Footer />
+      <ChatBot />
     </div>
   );
 };
