@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Search, Menu, X, User } from 'lucide-react';
@@ -8,6 +8,7 @@ import { ShoppingCart, Search, Menu, X, User } from 'lucide-react';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +22,11 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <header
@@ -45,16 +51,28 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="link-hover-effect py-2 text-sm font-medium">
+            <Link 
+              to="/" 
+              className={`link-hover-effect py-2 text-sm font-medium ${location.pathname === '/' ? 'text-primary' : ''}`}
+            >
               Home
             </Link>
-            <Link to="/products" className="link-hover-effect py-2 text-sm font-medium">
+            <Link 
+              to="/products" 
+              className={`link-hover-effect py-2 text-sm font-medium ${location.pathname === '/products' ? 'text-primary' : ''}`}
+            >
               Shop
             </Link>
-            <Link to="/about" className="link-hover-effect py-2 text-sm font-medium">
+            <Link 
+              to="/about" 
+              className={`link-hover-effect py-2 text-sm font-medium ${location.pathname === '/about' ? 'text-primary' : ''}`}
+            >
               About
             </Link>
-            <Link to="/contact" className="link-hover-effect py-2 text-sm font-medium">
+            <Link 
+              to="/contact" 
+              className={`link-hover-effect py-2 text-sm font-medium ${location.pathname === '/contact' ? 'text-primary' : ''}`}
+            >
               Contact
             </Link>
           </nav>
@@ -65,17 +83,23 @@ const Navbar = () => {
               <Search size={20} />
               <span className="sr-only">Search</span>
             </Button>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <ShoppingCart size={20} />
-              <span className="sr-only">Cart</span>
-            </Button>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <User size={20} />
-              <span className="sr-only">Account</span>
-            </Button>
-            <Button className="rounded-full btn-shine" size="sm">
-              Start Selling
-            </Button>
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <ShoppingCart size={20} />
+                <span className="sr-only">Cart</span>
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <User size={20} />
+                <span className="sr-only">Account</span>
+              </Button>
+            </Link>
+            <Link to="/seller/register">
+              <Button className="rounded-full btn-shine" size="sm">
+                Start Selling
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -101,29 +125,25 @@ const Navbar = () => {
         <nav className="flex flex-col space-y-8 items-center">
           <Link 
             to="/" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
+            className={`text-lg font-medium ${location.pathname === '/' ? 'text-primary' : ''}`}
           >
             Home
           </Link>
           <Link 
             to="/products" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
+            className={`text-lg font-medium ${location.pathname === '/products' ? 'text-primary' : ''}`}
           >
             Shop
           </Link>
           <Link 
             to="/about" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
+            className={`text-lg font-medium ${location.pathname === '/about' ? 'text-primary' : ''}`}
           >
             About
           </Link>
           <Link 
             to="/contact" 
-            className="text-lg font-medium"
-            onClick={() => setIsMobileMenuOpen(false)}
+            className={`text-lg font-medium ${location.pathname === '/contact' ? 'text-primary' : ''}`}
           >
             Contact
           </Link>
@@ -131,16 +151,22 @@ const Navbar = () => {
             <Button variant="outline" size="icon" className="rounded-full">
               <Search size={20} />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <ShoppingCart size={20} />
-            </Button>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <User size={20} />
-            </Button>
+            <Link to="/cart">
+              <Button variant="outline" size="icon" className="rounded-full">
+                <ShoppingCart size={20} />
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="outline" size="icon" className="rounded-full">
+                <User size={20} />
+              </Button>
+            </Link>
           </div>
-          <Button className="w-full btn-shine mt-6" size="lg">
-            Start Selling
-          </Button>
+          <Link to="/seller/register" className="w-full">
+            <Button className="w-full btn-shine mt-6" size="lg">
+              Start Selling
+            </Button>
+          </Link>
         </nav>
       </div>
     </header>
