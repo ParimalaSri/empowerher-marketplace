@@ -177,9 +177,11 @@ const ViewProducts = () => {
             <div className="text-4xl mb-4">🔍</div>
             <h3 className="text-xl font-medium mb-2">No products found</h3>
             <p className="text-muted-foreground mb-6">We couldn't find any products in this category.</p>
-            <Button variant="outline" as={Link} to="/products">
-              Browse All Products
-            </Button>
+            <Link to="/products">
+              <Button variant="outline">
+                Browse All Products
+              </Button>
+            </Link>
           </div>
         )}
       </main>
