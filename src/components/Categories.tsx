@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -35,12 +35,25 @@ const categories = [
     name: 'Accessories',
     image: 'https://images.unsplash.com/photo-1565562195689-ade1297bd89c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1965&q=80',
     description: 'Handcrafted jewelry and accessories with cultural significance'
+  },
+  {
+    id: 6,
+    name: 'Wellness Products',
+    image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80',
+    description: 'Natural health and beauty products made with traditional knowledge'
   }
 ];
 
 const CategoryCard = ({ category, index }: { category: typeof categories[0], index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Preload image
+    const img = new Image();
+    img.src = category.image;
+    img.onload = () => setImageLoaded(true);
+  }, [category.image]);
 
   return (
     <div 
@@ -103,8 +116,18 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0], ind
 };
 
 const Categories = () => {
+  const [allCategoriesLoaded, setAllCategoriesLoaded] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAllCategoriesLoaded(true);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <section className="section-spacing bg-secondary/30">
+    <section className="section-spacing bg-secondary/10">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Discover Our Categories</h2>
@@ -113,8 +136,10 @@ const Categories = () => {
           </p>
         </div>
 
-        {/* Changed grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 to always show 3 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className={cn(
+          "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 transition-opacity duration-500",
+          allCategoriesLoaded ? "opacity-100" : "opacity-0"
+        )}>
           {categories.map((category, index) => (
             <CategoryCard key={category.id} category={category} index={index} />
           ))}

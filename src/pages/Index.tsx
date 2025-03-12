@@ -7,9 +7,11 @@ import FeaturedProducts from '@/components/FeaturedProducts';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
 import ChatBot from '@/components/ChatBot';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [contentLoaded, setContentLoaded] = useState(false);
 
   useEffect(() => {
     // Set page as loaded after a short delay for animations
@@ -17,10 +19,18 @@ const Index = () => {
       setPageLoaded(true);
     }, 100);
 
+    // Set content as loaded with a slightly longer delay
+    const contentTimer = setTimeout(() => {
+      setContentLoaded(true);
+    }, 300);
+
     // Scroll to top on page load
     window.scrollTo(0, 0);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(contentTimer);
+    };
   }, []);
 
   return (
@@ -28,9 +38,21 @@ const Index = () => {
       <Navbar />
       <main>
         <Hero />
-        <Categories />
-        <FeaturedProducts />
-        <Testimonials />
+        {contentLoaded ? (
+          <>
+            <Categories />
+            <FeaturedProducts />
+            <Testimonials />
+          </>
+        ) : (
+          <div className="py-16">
+            <div className="container mx-auto max-w-7xl">
+              <Skeleton className="w-full h-[500px] rounded-xl mb-10" />
+              <Skeleton className="w-full h-[600px] rounded-xl mb-10" />
+              <Skeleton className="w-full h-[400px] rounded-xl" />
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
       <ChatBot />
