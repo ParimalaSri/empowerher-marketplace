@@ -150,7 +150,8 @@ const ChatBot = () => {
     // Detect language
     const detectedLang = detectLanguage(userMessage);
     if (detectedLang !== language) {
-      setLanguage(detectedLang);
+      // Type cast the detectedLang as Language type since we know it's a valid language code
+      setLanguage(detectedLang as 'en' | 'hi' | 'es' | 'fr' | 'de');
     }
     
     const t = translations[detectedLang as keyof typeof translations] || translations.en;
@@ -283,7 +284,8 @@ const ChatBot = () => {
   };
 
   const handleLanguageChange = (value: string) => {
-    setLanguage(value);
+    // Type cast value to Language type since we know it's coming from a controlled component with valid values
+    setLanguage(value as 'en' | 'hi' | 'es' | 'fr' | 'de');
   };
 
   return (
