@@ -113,17 +113,20 @@ const Categories = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        {/* Changed grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 to always show 3 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {categories.map((category, index) => (
             <CategoryCard key={category.id} category={category} index={index} />
           ))}
         </div>
 
         <div className="mt-16 text-center">
-          <Button size="lg" className="btn-shine">
-            View All Categories
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <Link to="/view-products?category=all">
+            <Button size="lg" className="btn-shine">
+              View All Categories
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
