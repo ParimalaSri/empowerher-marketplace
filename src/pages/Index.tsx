@@ -14,12 +14,10 @@ const Index = () => {
   const [contentLoaded, setContentLoaded] = useState(false);
 
   useEffect(() => {
-    // Set page as loaded after a short delay for animations
-    const timer = setTimeout(() => {
-      setPageLoaded(true);
-    }, 100);
+    // Set page as loaded immediately
+    setPageLoaded(true);
 
-    // Set content as loaded with a slightly longer delay
+    // Set content as loaded with a short delay for smoother transitions
     const contentTimer = setTimeout(() => {
       setContentLoaded(true);
     }, 300);
@@ -28,13 +26,12 @@ const Index = () => {
     window.scrollTo(0, 0);
 
     return () => {
-      clearTimeout(timer);
       clearTimeout(contentTimer);
     };
   }, []);
 
   return (
-    <div className={`min-h-screen flex flex-col transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`min-h-screen flex flex-col transition-opacity duration-500 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <Navbar />
       <main>
         <Hero />
