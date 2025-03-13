@@ -15,7 +15,7 @@ const PRODUCTS = [
     id: '1',
     name: 'Handwoven Cotton Shawl',
     price: 1200,
-    image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
+    image: 'https://images.unsplash.com/photo-1529631134462-d23a23a7070c',
     category: 'Clothing',
     seller: 'Lakshmi Crafts',
     rating: 4.5
@@ -42,7 +42,7 @@ const PRODUCTS = [
     id: '4',
     name: 'Embroidered Cushion Cover Set',
     price: 950,
-    image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
+    image: 'https://images.unsplash.com/photo-1556909211-369841544ff6',
     category: 'Home Decor',
     seller: 'Rural Stitchers',
     rating: 4.3

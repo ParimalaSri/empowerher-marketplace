@@ -14,7 +14,7 @@ const ALL_PRODUCTS = [
     id: '1',
     name: 'Handwoven Cotton Shawl',
     price: 1200,
-    image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
+    image: 'https://images.unsplash.com/photo-1529631134462-d23a23a7070c',
     category: 'Clothing',
     seller: 'Lakshmi Crafts',
     rating: 4.5
@@ -41,7 +41,7 @@ const ALL_PRODUCTS = [
     id: '4',
     name: 'Embroidered Cushion Cover Set',
     price: 950,
-    image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
+    image: 'https://images.unsplash.com/photo-1556909211-369841544ff6',
     category: 'Home Decor',
     seller: 'Rural Stitchers',
     rating: 4.3
@@ -66,21 +66,21 @@ const ALL_PRODUCTS = [
   },
   {
     id: '7',
-    name: 'Handcrafted Silver Jewelry',
-    price: 2200,
-    image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
-    category: 'Accessories',
-    seller: 'Silver Artisans',
-    rating: 4.7
+    name: 'Silk Embroidered Kurti',
+    price: 1800,
+    image: 'https://images.unsplash.com/photo-1529631134462-d23a23a7070c',
+    category: 'Clothing',
+    seller: 'Royal Threads',
+    rating: 4.6
   },
   {
     id: '8',
-    name: 'Organic Cotton Dress',
-    price: 1800,
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+    name: 'Block Printed Cotton Saree',
+    price: 2200,
+    image: 'https://images.unsplash.com/photo-1556909211-369841544ff6',
     category: 'Clothing',
-    seller: 'Eco Fashion',
-    rating: 4.5
+    seller: 'Handloom Creations',
+    rating: 4.7
   }
 ];
 
