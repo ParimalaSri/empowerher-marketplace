@@ -16,8 +16,10 @@ import Checkout from "./pages/Checkout";
 import SellerRegistration from "./pages/SellerRegistration";
 import CustomerRegistration from "./pages/CustomerRegistration";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import SellerDashboard from "./pages/SellerDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
+import ChatBot from "./components/ChatBot";
 
 const queryClient = new QueryClient();
 
@@ -39,11 +41,13 @@ const App = () => (
           <Route path="/seller/register" element={<SellerRegistration />} />
           <Route path="/customer/register" element={<CustomerRegistration />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/seller/dashboard/*" element={<SellerDashboard />} />
           <Route path="/customer/dashboard/*" element={<CustomerDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <ChatBot />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
