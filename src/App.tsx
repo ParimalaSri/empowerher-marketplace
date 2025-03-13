@@ -18,36 +18,33 @@ import CustomerRegistration from "./pages/CustomerRegistration";
 import Login from "./pages/Login";
 import SellerDashboard from "./pages/SellerDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
-import { LanguageProvider } from "./hooks/use-language";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <LanguageProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/view-products" element={<ViewProducts />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/seller/register" element={<SellerRegistration />} />
-            <Route path="/customer/register" element={<CustomerRegistration />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/seller/dashboard/*" element={<SellerDashboard />} />
-            <Route path="/customer/dashboard/*" element={<CustomerDashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </LanguageProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/view-products" element={<ViewProducts />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/seller/register" element={<SellerRegistration />} />
+          <Route path="/customer/register" element={<CustomerRegistration />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/seller/dashboard/*" element={<SellerDashboard />} />
+          <Route path="/customer/dashboard/*" element={<CustomerDashboard />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

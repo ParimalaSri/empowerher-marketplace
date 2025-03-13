@@ -6,47 +6,32 @@ import Categories from '@/components/Categories';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
-import ChatBot from '@/components/ChatBot';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [contentLoaded, setContentLoaded] = useState(false);
 
   useEffect(() => {
-    // Set page as loaded immediately for better user experience
-    setPageLoaded(true);
-    
-    // Set content as loaded immediately for better user experience
-    setContentLoaded(true);
+    // Set page as loaded after a short delay for animations
+    const timer = setTimeout(() => {
+      setPageLoaded(true);
+    }, 100);
 
     // Scroll to top on page load
     window.scrollTo(0, 0);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className={`min-h-screen flex flex-col transition-opacity duration-300 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`min-h-screen flex flex-col transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <Navbar />
       <main>
         <Hero />
-        {contentLoaded ? (
-          <>
-            <Categories />
-            <FeaturedProducts />
-            <Testimonials />
-          </>
-        ) : (
-          <div className="py-16">
-            <div className="container mx-auto max-w-7xl">
-              <Skeleton className="w-full h-[500px] rounded-xl mb-10" />
-              <Skeleton className="w-full h-[600px] rounded-xl mb-10" />
-              <Skeleton className="w-full h-[400px] rounded-xl" />
-            </div>
-          </div>
-        )}
+        <Categories />
+        <FeaturedProducts />
+        <Testimonials />
       </main>
       <Footer />
-      <ChatBot />
     </div>
   );
 };
