@@ -97,7 +97,7 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0], ind
         )}>
           {category.description}
         </p>
-        <Link to={`/categories/${category.id}`}>
+        <Link to={`/view-products?category=${category.name.toLowerCase()}`}>
           <Button 
             variant="outline" 
             className={cn(
@@ -127,12 +127,12 @@ const Categories = () => {
   }, []);
 
   return (
-    <section className="section-spacing bg-secondary/10">
+    <section id="categories-section" className="section-spacing bg-secondary/10">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Discover Our Categories</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Artisan-Made Categories</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Explore handcrafted treasures from talented women entrepreneurs across diverse categories
+            Explore handcrafted treasures that empower women artisans and preserve cultural heritage
           </p>
         </div>
 
@@ -148,7 +148,7 @@ const Categories = () => {
         <div className="mt-16 text-center">
           <Link to="/view-products?category=all">
             <Button size="lg" className="btn-shine">
-              View All Categories
+              Browse All Products
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>

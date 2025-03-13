@@ -2,56 +2,56 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowRight, ShoppingBag, ChevronDown } from 'lucide-react';
+import { ArrowRight, ShoppingBag, ChevronDown, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/use-language';
 
 // Translations for hero section
 const heroTranslations = {
   en: {
-    tagline: "Empowering Rural Women Entrepreneurs",
-    heading1: "From Rural Hands",
-    heading2: "To Global Markets",
-    description: "Supporting women artisans across rural communities by connecting their exceptional handcrafted products directly to conscious consumers worldwide.",
-    shopNow: "Shop Now",
-    startSelling: "Start Selling",
-    scrollDown: "Scroll Down"
+    tagline: "Empowering Rural Women, Transforming Lives! 🌍✨",
+    heading1: "Authentic crafts",
+    heading2: "Powerful impact",
+    description: "Discover authentic, handcrafted products made by talented rural women artisans. Every purchase supports their journey towards financial independence and a brighter future. Shop with purpose, uplift communities!",
+    shopNow: "Shop With Purpose",
+    startSelling: "Join as Artisan",
+    scrollDown: "Explore More"
   },
   hi: {
-    tagline: "ग्रामीण महिला उद्यमियों को सशक्त बनाना",
-    heading1: "ग्रामीण हाथों से",
-    heading2: "वैश्विक बाजारों तक",
-    description: "ग्रामीण समुदायों की महिला कारीगरों को उनके असाधारण हस्तशिल्प उत्पादों को सीधे जागरूक उपभोक्ताओं से जोड़कर समर्थन करना।",
-    shopNow: "अभी खरीदें",
-    startSelling: "विक्रय शुरू करें",
-    scrollDown: "नीचे स्क्रॉल करें"
+    tagline: "ग्रामीण महिलाओं को सशक्त बनाना, जीवन बदलना! 🌍✨",
+    heading1: "प्रामाणिक शिल्प",
+    heading2: "शक्तिशाली प्रभाव",
+    description: "प्रतिभाशाली ग्रामीण महिला कारीगरों द्वारा बनाए गए प्रामाणिक, हस्तनिर्मित उत्पादों की खोज करें। हर खरीदारी वित्तीय स्वतंत्रता और उज्जवल भविष्य की ओर उनकी यात्रा का समर्थन करती है। उद्देश्य के साथ खरीदारी करें, समुदायों को ऊपर उठाएं!",
+    shopNow: "उद्देश्य के साथ खरीदें",
+    startSelling: "कारीगर के रूप में शामिल हों",
+    scrollDown: "और देखें"
   },
   es: {
-    tagline: "Empoderando a Mujeres Emprendedoras Rurales",
-    heading1: "De Manos Rurales",
-    heading2: "A Mercados Globales",
-    description: "Apoyando a mujeres artesanas de comunidades rurales conectando sus excepcionales productos artesanales directamente con consumidores conscientes en todo el mundo.",
-    shopNow: "Comprar Ahora",
-    startSelling: "Empezar a Vender",
-    scrollDown: "Desplázate hacia abajo"
+    tagline: "¡Empoderando a Mujeres Rurales, Transformando Vidas! 🌍✨",
+    heading1: "Artesanías auténticas",
+    heading2: "Impacto poderoso",
+    description: "Descubre productos auténticos hechos a mano por talentosas artesanas rurales. Cada compra apoya su camino hacia la independencia financiera y un futuro más brillante. ¡Compra con propósito, eleva comunidades!",
+    shopNow: "Compra con Propósito",
+    startSelling: "Únete como Artesana",
+    scrollDown: "Explorar Más"
   },
   fr: {
-    tagline: "Autonomiser les Femmes Entrepreneures Rurales",
-    heading1: "Des Mains Rurales",
-    heading2: "Aux Marchés Mondiaux",
-    description: "Soutenir les femmes artisanes des communautés rurales en connectant leurs produits artisanaux exceptionnels directement aux consommateurs conscients du monde entier.",
-    shopNow: "Acheter Maintenant",
-    startSelling: "Commencer à Vendre",
-    scrollDown: "Défiler vers le bas"
+    tagline: "Autonomiser les Femmes Rurales, Transformer des Vies! 🌍✨",
+    heading1: "Artisanat authentique",
+    heading2: "Impact puissant",
+    description: "Découvrez des produits authentiques faits à la main par des artisanes rurales talentueuses. Chaque achat soutient leur voyage vers l'indépendance financière et un avenir meilleur. Achetez avec un but, élevez les communautés!",
+    shopNow: "Acheter avec un But",
+    startSelling: "Rejoindre en tant qu'Artisane",
+    scrollDown: "Explorer Plus"
   },
   de: {
-    tagline: "Stärkung von Unternehmerinnen im ländlichen Raum",
-    heading1: "Von ländlichen Händen",
-    heading2: "Zu globalen Märkten",
-    description: "Unterstützung von Kunsthandwerkerinnen in ländlichen Gemeinschaften durch die direkte Verbindung ihrer außergewöhnlichen handgefertigten Produkte mit bewussten Verbrauchern weltweit.",
-    shopNow: "Jetzt Einkaufen",
-    startSelling: "Mit dem Verkauf beginnen",
-    scrollDown: "Nach unten scrollen"
+    tagline: "Stärkung von Frauen in ländlichen Gebieten, Verwandlung von Leben! 🌍✨",
+    heading1: "Authentisches Handwerk",
+    heading2: "Kraftvolle Wirkung",
+    description: "Entdecken Sie authentische, handgefertigte Produkte von talentierten Kunsthandwerkerinnen aus ländlichen Gebieten. Jeder Kauf unterstützt ihren Weg zur finanziellen Unabhängigkeit und einer besseren Zukunft. Kaufen Sie mit Sinn, heben Sie Gemeinschaften!",
+    shopNow: "Sinnvoll Einkaufen",
+    startSelling: "Als Kunsthandwerkerin Beitreten",
+    scrollDown: "Mehr Entdecken"
   }
 };
 
@@ -95,7 +95,7 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center section-spacing overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-background/70 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/70 z-10" />
         <img
           src="https://images.unsplash.com/photo-1591888181001-ea11eb95e46c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
           alt="Rural women artisans"
@@ -116,7 +116,7 @@ const Hero = () => {
               isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             )}
           >
-            <div className="inline-block px-4 py-1.5 mb-6 text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary rounded-full">
+            <div className="inline-block px-4 py-2 mb-6 text-sm font-medium tracking-wide bg-primary/10 text-primary rounded-full">
               {t.tagline}
             </div>
           </div>
@@ -129,7 +129,7 @@ const Hero = () => {
             )}
           >
             <span className="block">{t.heading1}</span>
-            <span className="block">{t.heading2}</span>
+            <span className="block text-primary">{t.heading2}</span>
           </h1>
 
           <p 
@@ -152,7 +152,7 @@ const Hero = () => {
             <Link to="/products">
               <Button className="btn-shine text-base px-8 py-6 w-full sm:w-auto" size="lg">
                 {t.shopNow}
-                <ShoppingBag className="ml-2 h-5 w-5" />
+                <Heart className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/seller/register">
@@ -161,6 +161,28 @@ const Hero = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
+          </div>
+
+          {/* Impact stats */}
+          <div 
+            className={cn(
+              "grid grid-cols-2 sm:grid-cols-3 gap-6 mt-16 bg-background/60 backdrop-blur-sm p-6 rounded-xl border border-border/40",
+              "transition-all duration-700 delay-1100",
+              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            )}
+          >
+            <div className="text-center">
+              <p className="text-3xl font-bold text-primary">5,000+</p>
+              <p className="text-sm text-muted-foreground">Artisans Supported</p>
+            </div>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-primary">250+</p>
+              <p className="text-sm text-muted-foreground">Rural Communities</p>
+            </div>
+            <div className="text-center hidden sm:block">
+              <p className="text-3xl font-bold text-primary">100%</p>
+              <p className="text-sm text-muted-foreground">Fair Compensation</p>
+            </div>
           </div>
         </div>
       </div>
