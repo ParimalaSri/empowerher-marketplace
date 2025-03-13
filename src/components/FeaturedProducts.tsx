@@ -1,53 +1,9 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ShoppingCart, Heart, Star } from 'lucide-react';
-
-// Sample product data
-const products = [
-  {
-    id: 1,
-    name: 'Block Printed Cotton Saree',
-    description: 'Handcrafted cotton saree with traditional block printing by skilled rural artisans',
-    price: 2200,
-    image: 'https://images.unsplash.com/photo-1556909211-369841544ff6',
-    rating: 4.7,
-    seller: 'Handloom Creations',
-    category: 'Clothing'
-  },
-  {
-    id: 2,
-    name: 'Beaded Tribal Necklace',
-    description: 'Hand-crafted necklace featuring traditional tribal beadwork and patterns',
-    price: 750,
-    image: 'https://images.unsplash.com/photo-1593504049359-74330189a345',
-    rating: 4.7,
-    seller: 'Ethnic Adornments',
-    category: 'Accessories'
-  },
-  {
-    id: 3,
-    name: 'Organic Honey - 500g',
-    description: 'Pure, raw honey harvested from community-managed beehives',
-    price: 350,
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-    rating: 4.7,
-    seller: 'Nature\'s Bounty',
-    category: 'Organic Food'
-  },
-  {
-    id: 4,
-    name: 'Carved Marble Vase',
-    description: 'Uniquely designed vase hand-carved from natural marble by skilled women artisans',
-    price: 1750,
-    image: 'https://images.unsplash.com/photo-1560185007-a8b92c3bd566',
-    rating: 4.6,
-    seller: 'Stone Artisans',
-    category: 'Home Decor'
-  }
-];
+import { products } from '@/data/products';
 
 const ProductCard = ({ product, index }: { product: typeof products[0], index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -79,7 +35,6 @@ const ProductCard = ({ product, index }: { product: typeof products[0], index: n
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Product Image */}
       <div className="relative h-64 overflow-hidden">
         <img 
           src={product.image} 
@@ -92,7 +47,6 @@ const ProductCard = ({ product, index }: { product: typeof products[0], index: n
           onLoad={() => setImageLoaded(true)}
         />
         
-        {/* Action buttons */}
         <div className={cn(
           "absolute bottom-4 right-4 flex space-x-2 transition-all duration-300",
           isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -105,7 +59,6 @@ const ProductCard = ({ product, index }: { product: typeof products[0], index: n
           </Button>
         </div>
         
-        {/* Category tag */}
         <div className="absolute top-4 left-4">
           <span className="bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">
             {product.category}
@@ -113,7 +66,6 @@ const ProductCard = ({ product, index }: { product: typeof products[0], index: n
         </div>
       </div>
       
-      {/* Product Details */}
       <div className="p-5">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold">{product.name}</h3>
@@ -125,7 +77,6 @@ const ProductCard = ({ product, index }: { product: typeof products[0], index: n
         </p>
         
         <div className="flex items-center justify-between">
-          {/* Seller & Rating */}
           <div>
             <p className="text-xs text-muted-foreground">By {product.seller}</p>
             <div className="flex items-center mt-1">
@@ -134,7 +85,6 @@ const ProductCard = ({ product, index }: { product: typeof products[0], index: n
             </div>
           </div>
           
-          {/* View Details */}
           <Link to={`/products/${product.id}`}>
             <Button variant="ghost" size="sm" className="text-xs hover:bg-primary/5">
               Details

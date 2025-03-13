@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -8,78 +7,12 @@ import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown, Filter, SlidersHorizontal, ShoppingCart, Heart } from 'lucide-react';
-
-// Sample product data
-const PRODUCTS = [
-  {
-    id: '1',
-    name: 'Handwoven Cotton Shawl',
-    price: 1200,
-    image: 'https://images.unsplash.com/photo-1529631134462-d23a23a7070c',
-    category: 'Clothing',
-    seller: 'Lakshmi Crafts',
-    rating: 4.5
-  },
-  {
-    id: '2',
-    name: 'Hand-painted Clay Pottery',
-    price: 850,
-    image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
-    category: 'Home Decor',
-    seller: 'Village Artisans',
-    rating: 4.8
-  },
-  {
-    id: '3',
-    name: 'Organic Honey - 500g',
-    price: 350,
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-    category: 'Organic Food',
-    seller: 'Nature\'s Bounty',
-    rating: 4.7
-  },
-  {
-    id: '4',
-    name: 'Embroidered Cushion Cover Set',
-    price: 950,
-    image: 'https://images.unsplash.com/photo-1556909211-369841544ff6',
-    category: 'Home Decor',
-    seller: 'Rural Stitchers',
-    rating: 4.3
-  },
-  {
-    id: '5',
-    name: 'Handmade Jute Bag',
-    price: 550,
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-    category: 'Accessories',
-    seller: 'EcoFriendly Crafts',
-    rating: 4.6
-  },
-  {
-    id: '6',
-    name: 'Traditional Wood Carved Box',
-    price: 1500,
-    image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
-    category: 'Handicrafts',
-    seller: 'Heritage Artisans',
-    rating: 4.9
-  }
-];
-
-const CATEGORIES = [
-  { id: 'all', name: 'All Categories' },
-  { id: 'handicrafts', name: 'Handicrafts' },
-  { id: 'clothing', name: 'Clothing' },
-  { id: 'organic-food', name: 'Organic Food' },
-  { id: 'home-decor', name: 'Home Decor' },
-  { id: 'accessories', name: 'Accessories' }
-];
+import { ALL_PRODUCTS, CATEGORIES } from '@/data/productsView';
 
 const Products = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 5000]);
-  const [filteredProducts, setFilteredProducts] = useState(PRODUCTS);
+  const [filteredProducts, setFilteredProducts] = useState(ALL_PRODUCTS);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['all']);
 
@@ -102,16 +35,13 @@ const Products = () => {
     }
   };
 
-  // Filter products based on selected filters
   useEffect(() => {
-    let filtered = PRODUCTS;
+    let filtered = ALL_PRODUCTS;
     
-    // Filter by price
     filtered = filtered.filter(product => 
       product.price >= priceRange[0] && product.price <= priceRange[1]
     );
     
-    // Filter by category
     if (!selectedCategories.includes('all')) {
       filtered = filtered.filter(product =>
         selectedCategories.some(cat => product.category.toLowerCase() === cat.replace(/-/g, ' '))
@@ -165,7 +95,6 @@ const Products = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Filters Sidebar */}
           <div className={`${showFilters ? 'block' : 'hidden'} lg:block lg:col-span-1`}>
             <div className="bg-card rounded-lg shadow-sm p-6 border sticky top-24">
               <div className="flex items-center justify-between mb-4">
@@ -220,7 +149,6 @@ const Products = () => {
             </div>
           </div>
           
-          {/* Products Grid */}
           <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.length > 0 ? (
               filteredProducts.map(product => (
