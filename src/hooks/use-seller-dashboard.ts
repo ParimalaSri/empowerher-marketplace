@@ -64,7 +64,12 @@ export function useSellerOrders() {
       try {
         setLoading(true);
         const data = await fetchData<typeof mockOrders>('/seller/orders');
-        setOrders(data);
+        // Explicitly type cast the status field to ensure it matches SellerOrder
+        const typedOrders = data.map(order => ({
+          ...order,
+          status: order.status as 'Delivered' | 'Processing' | 'Shipped' | 'Pending'
+        }));
+        setOrders(typedOrders);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {
