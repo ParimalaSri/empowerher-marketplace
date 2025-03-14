@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -49,7 +50,7 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0], ind
         )}>
           {category.description}
         </p>
-        <Link to={`/categories/${category.id}`}>
+        <Link to={`/view-products?category=${category.name.toLowerCase()}`}>
           <Button 
             variant="outline" 
             className={cn(
