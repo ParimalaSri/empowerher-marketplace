@@ -7,8 +7,19 @@ import {
   ShoppingBag, Heart, User, CreditCard, 
   MapPin, Home, LogOut, Star 
 } from 'lucide-react';
+import { 
+  useCustomerStats, 
+  useCustomerOrders, 
+  useWishlist, 
+  useAddresses 
+} from '@/hooks/use-customer-dashboard';
+import { 
+  StatCardSkeleton, 
+  TableSkeleton, 
+  DashboardSkeleton 
+} from '@/components/ui/dashboard/loading-state';
+import { useToast } from '@/components/ui/use-toast';
 
-// Mock dashboard data
 const mockOrders = [
   { id: 1234, date: '2023-08-15', items: 2, total: 2050, status: 'Delivered' },
   { id: 1235, date: '2023-09-22', items: 1, total: 850, status: 'Processing' },
@@ -26,8 +37,25 @@ const mockAddresses = [
   { id: 2, name: 'Office', address: '456 Business Avenue, Sector 18', city: 'Noida', state: 'UP', pincode: '201301', default: false },
 ];
 
-// Dashboard components
 const DashboardOverview = () => {
+  const { stats, loading, error } = useCustomerStats();
+  const { orders, loading: ordersLoading } = useCustomerOrders();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading dashboard data",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+  
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -37,8 +65,8 @@ const DashboardOverview = () => {
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">3 orders this month</p>
+            <div className="text-2xl font-bold">{stats?.orders.total}</div>
+            <p className="text-xs text-muted-foreground">{stats?.orders.recent} orders {stats?.orders.period}</p>
           </CardContent>
         </Card>
         <Card>
@@ -47,8 +75,8 @@ const DashboardOverview = () => {
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">Added 2 recently</p>
+            <div className="text-2xl font-bold">{stats?.wishlist.total}</div>
+            <p className="text-xs text-muted-foreground">Added {stats?.wishlist.added} {stats?.wishlist.period}</p>
           </CardContent>
         </Card>
         <Card>
@@ -57,92 +85,125 @@ const DashboardOverview = () => {
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">Home & Office</p>
+            <div className="text-2xl font-bold">{stats?.addresses.total}</div>
+            <p className="text-xs text-muted-foreground">{stats?.addresses.names}</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-3">Order ID</th>
-                  <th className="text-left p-3">Date</th>
-                  <th className="text-left p-3">Items</th>
-                  <th className="text-left p-3">Total</th>
-                  <th className="text-left p-3">Status</th>
-                  <th className="text-left p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockOrders.map(order => (
-                  <tr key={order.id} className="border-b">
-                    <td className="p-3">#{order.id}</td>
-                    <td className="p-3">{order.date}</td>
-                    <td className="p-3">{order.items}</td>
-                    <td className="p-3">₹{order.total}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        order.status === 'Delivered' 
-                          ? 'bg-green-100 text-green-800' 
-                          : order.status === 'Processing' 
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-purple-100 text-purple-800'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <Button variant="outline" size="sm">View</Button>
-                    </td>
+      {ordersLoading ? (
+        <TableSkeleton />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3">Order ID</th>
+                    <th className="text-left p-3">Date</th>
+                    <th className="text-left p-3">Items</th>
+                    <th className="text-left p-3">Total</th>
+                    <th className="text-left p-3">Status</th>
+                    <th className="text-left p-3">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                </thead>
+                <tbody>
+                  {orders.length > 0 ? (
+                    orders.map(order => (
+                      <tr key={order.id} className="border-b">
+                        <td className="p-3">#{order.id}</td>
+                        <td className="p-3">{order.date}</td>
+                        <td className="p-3">{order.items}</td>
+                        <td className="p-3">₹{order.total}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            order.status === 'Delivered' 
+                              ? 'bg-green-100 text-green-800' 
+                              : order.status === 'Processing' 
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <Button variant="outline" size="sm">View</Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="p-4 text-center">No orders found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recently Viewed</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="p-4 border rounded-lg text-center">
-              <img src="https://images.unsplash.com/photo-1591192818044-6d0e89c379f5" alt="Product" className="mx-auto h-24 w-auto object-cover rounded mb-2" />
-              <h3 className="font-medium text-sm">Handcrafted Wall Hanging</h3>
-              <p className="text-sm text-muted-foreground">₹1,200</p>
+      {loading ? (
+        <TableSkeleton />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recently Viewed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {stats?.recentlyViewed && stats.recentlyViewed.length > 0 ? (
+                stats.recentlyViewed.map(item => (
+                  <div key={item.id} className="p-4 border rounded-lg text-center">
+                    <img src={item.image} alt={item.name} className="mx-auto h-24 w-auto object-cover rounded mb-2" />
+                    <h3 className="font-medium text-sm">{item.name}</h3>
+                    <p className="text-sm text-muted-foreground">₹{item.price}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-3 p-4 text-center">No recently viewed products</div>
+              )}
             </div>
-            <div className="p-4 border rounded-lg text-center">
-              <img src="https://images.unsplash.com/photo-1586870346189-0b070ffd3a9a" alt="Product" className="mx-auto h-24 w-auto object-cover rounded mb-2" />
-              <h3 className="font-medium text-sm">Organic Honey</h3>
-              <p className="text-sm text-muted-foreground">₹350</p>
-            </div>
-            <div className="p-4 border rounded-lg text-center">
-              <img src="https://images.unsplash.com/photo-1581252584470-6402d716ec8f" alt="Product" className="mx-auto h-24 w-auto object-cover rounded mb-2" />
-              <h3 className="font-medium text-sm">Silver Filigree Earrings</h3>
-              <p className="text-sm text-muted-foreground">₹1,800</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
 
 const OrderHistory = () => {
+  const { orders, loading, error } = useCustomerOrders();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("all");
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading orders",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  const filteredOrders = React.useMemo(() => {
+    if (activeTab === "all") return orders;
+    return orders.filter(order => order.status.toLowerCase() === activeTab);
+  }, [orders, activeTab]);
+  
+  if (loading) {
+    return <TableSkeleton rowCount={4} columnCount={6} />;
+  }
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Order History</h2>
       
-      <Tabs defaultValue="all">
+      <Tabs defaultValue="all" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="all">All Orders</TabsTrigger>
           <TabsTrigger value="processing">Processing</TabsTrigger>
@@ -150,7 +211,7 @@ const OrderHistory = () => {
           <TabsTrigger value="delivered">Delivered</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="all" className="mt-4">
+        <TabsContent value={activeTab} className="mt-4">
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -166,48 +227,45 @@ const OrderHistory = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockOrders.map(order => (
-                      <tr key={order.id} className="border-b hover:bg-muted/50">
-                        <td className="p-4">#{order.id}</td>
-                        <td className="p-4">{order.date}</td>
-                        <td className="p-4">{order.items}</td>
-                        <td className="p-4">₹{order.total}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            order.status === 'Delivered' 
-                              ? 'bg-green-100 text-green-800' 
-                              : order.status === 'Processing' 
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-purple-100 text-purple-800'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm">Details</Button>
-                            {order.status === 'Delivered' && (
-                              <Button variant="secondary" size="sm">
-                                <Star className="h-4 w-4 mr-1" />
-                                Review
-                              </Button>
-                            )}
-                          </div>
-                        </td>
+                    {filteredOrders.length > 0 ? (
+                      filteredOrders.map(order => (
+                        <tr key={order.id} className="border-b hover:bg-muted/50">
+                          <td className="p-4">#{order.id}</td>
+                          <td className="p-4">{order.date}</td>
+                          <td className="p-4">{order.items}</td>
+                          <td className="p-4">₹{order.total}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              order.status === 'Delivered' 
+                                ? 'bg-green-100 text-green-800' 
+                                : order.status === 'Processing' 
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-purple-100 text-purple-800'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm">Details</Button>
+                              {order.status === 'Delivered' && (
+                                <Button variant="secondary" size="sm">
+                                  <Star className="h-4 w-4 mr-1" />
+                                  Review
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="p-4 text-center">No orders found</td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Other tabs would have similar content with filtered data */}
-        <TabsContent value="processing" className="mt-4">
-          <Card>
-            <CardContent>
-              <p>Processing orders will appear here.</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -217,43 +275,124 @@ const OrderHistory = () => {
 };
 
 const Wishlist = () => {
+  const { wishlist, loading, error } = useWishlist();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading wishlist",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">My Wishlist</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map(i => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-3">
+                  <Skeleton className="h-36 w-full" />
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-1/4" />
+                  <div className="flex gap-2 mt-2">
+                    <Skeleton className="h-9 w-full" />
+                    <Skeleton className="h-9 w-9" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">My Wishlist</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {mockWishlist.map(item => (
-          <Card key={item.id}>
-            <CardContent className="p-4">
-              <div className="flex flex-col gap-3">
-                <div className="bg-muted rounded-md h-36 flex items-center justify-center">
-                  <img 
-                    src={`https://source.unsplash.com/random/300x200?${item.name.replace(' ', '+')}`} 
-                    alt={item.name} 
-                    className="max-h-full max-w-full object-cover"
-                  />
+        {wishlist.length > 0 ? (
+          wishlist.map(item => (
+            <Card key={item.id}>
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-3">
+                  <div className="bg-muted rounded-md h-36 flex items-center justify-center">
+                    <img 
+                      src={`https://source.unsplash.com/random/300x200?${item.name.replace(' ', '+')}`} 
+                      alt={item.name} 
+                      className="max-h-full max-w-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{item.name}</h3>
+                    <p className="text-sm text-muted-foreground">By {item.seller}</p>
+                    <p className="font-medium mt-2">₹{item.price}</p>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="default" className="flex-1">Add to Cart</Button>
+                    <Button variant="outline" size="icon">
+                      <Heart className="h-4 w-4 fill-current" />
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground">By {item.seller}</p>
-                  <p className="font-medium mt-2">₹{item.price}</p>
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <Button variant="default" className="flex-1">Add to Cart</Button>
-                  <Button variant="outline" size="icon">
-                    <Heart className="h-4 w-4 fill-current" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-3 p-4 text-center border rounded-lg">
+            <p>Your wishlist is empty</p>
+            <Button variant="link" asChild className="mt-2">
+              <Link to="/products">Browse Products</Link>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 const AddressBook = () => {
+  const { addresses, loading, error } = useAddresses();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading addresses",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Address Book</h2>
+          <Skeleton className="h-9 w-36" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[1, 2].map(i => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <Skeleton className="h-24 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -262,33 +401,39 @@ const AddressBook = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {mockAddresses.map(address => (
-          <Card key={address.id}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{address.name}</h3>
-                    {address.default && (
-                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">Default</span>
+        {addresses.length > 0 ? (
+          addresses.map(address => (
+            <Card key={address.id}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium">{address.name}</h3>
+                      {address.default && (
+                        <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">Default</span>
+                      )}
+                    </div>
+                    <p className="text-sm mt-2">{address.address}</p>
+                    <p className="text-sm">{address.city}, {address.state} - {address.pincode}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">Edit</Button>
+                    {!address.default && (
+                      <Button variant="destructive" size="sm">Delete</Button>
                     )}
                   </div>
-                  <p className="text-sm mt-2">{address.address}</p>
-                  <p className="text-sm">{address.city}, {address.state} - {address.pincode}</p>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">Edit</Button>
-                  {!address.default && (
-                    <Button variant="destructive" size="sm">Delete</Button>
-                  )}
-                </div>
-              </div>
-              {!address.default && (
-                <Button variant="link" className="mt-3 p-0 h-auto">Set as Default</Button>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                {!address.default && (
+                  <Button variant="link" className="mt-3 p-0 h-auto">Set as Default</Button>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-2 p-4 text-center border rounded-lg">
+            <p>You haven't added any addresses yet.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -361,7 +506,6 @@ const ProfileSettings = () => {
   );
 };
 
-// Main CustomerDashboard Component
 const CustomerDashboard = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const location = useLocation();
@@ -378,7 +522,6 @@ const CustomerDashboard = () => {
   return (
     <div className={`min-h-screen transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="flex h-screen overflow-hidden">
-        {/* Sidebar */}
         <aside className="hidden md:flex w-64 flex-col fixed inset-y-0 z-50 border-r bg-background">
           <div className="p-6">
             <Link to="/" className="flex items-center gap-2 font-bold text-xl">
@@ -417,9 +560,7 @@ const CustomerDashboard = () => {
           </div>
         </aside>
         
-        {/* Main Content */}
         <div className="flex flex-col flex-1 md:pl-64">
-          {/* Header */}
           <header className="sticky top-0 z-10 border-b bg-background">
             <div className="flex h-16 items-center justify-between px-6">
               <div className="md:hidden">
@@ -433,7 +574,6 @@ const CustomerDashboard = () => {
             </div>
           </header>
           
-          {/* Dashboard Content */}
           <main className="flex-1 overflow-y-auto p-6">
             <Routes>
               <Route index element={<DashboardOverview />} />

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,24 +8,34 @@ import {
   Package, ShoppingBag, Users, CreditCard, 
   BarChart3, Home, Settings, LogOut, PlusCircle
 } from 'lucide-react';
+import { useSellerStats, useSellerOrders, useSellerProducts } from '@/hooks/use-seller-dashboard';
+import { 
+  StatCardSkeleton, 
+  TableSkeleton, 
+  ChartSkeleton, 
+  DashboardSkeleton 
+} from '@/components/ui/dashboard/loading-state';
+import { useToast } from '@/components/ui/use-toast';
 
-// Mock dashboard data
-const mockOrders = [
-  { id: 1, customer: 'Anita Sharma', product: 'Handcrafted Textile Wall Hanging', amount: 1200, status: 'Delivered' },
-  { id: 2, customer: 'Rajesh Kumar', product: 'Ceramic Planter Set', amount: 850, status: 'Processing' },
-  { id: 3, customer: 'Priya Mehta', product: 'Embroidered Cushion Covers', amount: 1500, status: 'Shipped' },
-  { id: 4, customer: 'Vikram Singh', product: 'Bamboo Storage Basket', amount: 650, status: 'Pending' },
-];
-
-const mockProducts = [
-  { id: 1, name: 'Handcrafted Textile Wall Hanging', price: 1200, stock: 8, sold: 12 },
-  { id: 2, name: 'Ceramic Planter Set', price: 850, stock: 15, sold: 7 },
-  { id: 3, name: 'Embroidered Cushion Covers', price: 1500, stock: 20, sold: 15 },
-  { id: 4, name: 'Bamboo Storage Basket', price: 650, stock: 5, sold: 25 },
-];
-
-// Dashboard components
 const DashboardOverview = () => {
+  const { stats, loading, error } = useSellerStats();
+  const { orders, loading: ordersLoading } = useSellerOrders();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading dashboard data",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+  
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -36,8 +45,10 @@ const DashboardOverview = () => {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹45,231</div>
-            <p className="text-xs text-muted-foreground">+18% from last month</p>
+            <div className="text-2xl font-bold">₹{stats?.revenue.total.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats?.revenue.change > 0 ? '+' : ''}{stats?.revenue.change}% from {stats?.revenue.period}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -46,8 +57,10 @@ const DashboardOverview = () => {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">59</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <div className="text-2xl font-bold">{stats?.productsSold.total}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats?.productsSold.change > 0 ? '+' : ''}{stats?.productsSold.change}% from {stats?.productsSold.period}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -56,8 +69,10 @@ const DashboardOverview = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">+8% from last month</p>
+            <div className="text-2xl font-bold">{stats?.newCustomers.total}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats?.newCustomers.change > 0 ? '+' : ''}{stats?.newCustomers.change}% from {stats?.newCustomers.period}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -66,8 +81,10 @@ const DashboardOverview = () => {
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">7</div>
-            <p className="text-xs text-muted-foreground">-2 since yesterday</p>
+            <div className="text-2xl font-bold">{stats?.pendingOrders.total}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats?.pendingOrders.change > 0 ? '+' : ''}{stats?.pendingOrders.change} since {stats?.pendingOrders.period}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -78,16 +95,13 @@ const DashboardOverview = () => {
             <CardTitle>Sales Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <LineChart 
-              data={[
-                { name: 'Jan', total: 4800 },
-                { name: 'Feb', total: 5900 },
-                { name: 'Mar', total: 3800 },
-                { name: 'Apr', total: 7200 },
-                { name: 'May', total: 6500 },
-                { name: 'Jun', total: 9800 },
-              ]} 
-            />
+            {stats?.salesData ? (
+              <LineChart data={stats.salesData} />
+            ) : (
+              <div className="h-64 flex items-center justify-center">
+                <p>No sales data available</p>
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card className="col-span-3">
@@ -95,68 +109,94 @@ const DashboardOverview = () => {
             <CardTitle>Product Categories</CardTitle>
           </CardHeader>
           <CardContent>
-            <PieChart 
-              data={[
-                { name: 'Handicrafts', value: 40 },
-                { name: 'Home Decor', value: 25 },
-                { name: 'Textiles', value: 20 },
-                { name: 'Jewelry', value: 15 },
-              ]} 
-            />
+            {stats?.productCategories ? (
+              <PieChart data={stats.productCategories} />
+            ) : (
+              <div className="h-64 flex items-center justify-center">
+                <p>No category data available</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
       <div className="grid gap-4 grid-cols-1">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2">Order ID</th>
-                    <th className="text-left p-2">Customer</th>
-                    <th className="text-left p-2">Product</th>
-                    <th className="text-left p-2">Amount</th>
-                    <th className="text-left p-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockOrders.map(order => (
-                    <tr key={order.id} className="border-b">
-                      <td className="p-2">#{order.id}</td>
-                      <td className="p-2">{order.customer}</td>
-                      <td className="p-2">{order.product}</td>
-                      <td className="p-2">₹{order.amount}</td>
-                      <td className="p-2">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          order.status === 'Delivered' 
-                            ? 'bg-green-100 text-green-800' 
-                            : order.status === 'Processing' 
-                            ? 'bg-blue-100 text-blue-800'
-                            : order.status === 'Shipped'
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </td>
+        {ordersLoading ? (
+          <TableSkeleton />
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Orders</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2">Order ID</th>
+                      <th className="text-left p-2">Customer</th>
+                      <th className="text-left p-2">Product</th>
+                      <th className="text-left p-2">Amount</th>
+                      <th className="text-left p-2">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                  </thead>
+                  <tbody>
+                    {orders.length > 0 ? (
+                      orders.map(order => (
+                        <tr key={order.id} className="border-b">
+                          <td className="p-2">#{order.id}</td>
+                          <td className="p-2">{order.customer}</td>
+                          <td className="p-2">{order.product}</td>
+                          <td className="p-2">₹{order.amount}</td>
+                          <td className="p-2">
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              order.status === 'Delivered' 
+                                ? 'bg-green-100 text-green-800' 
+                                : order.status === 'Processing' 
+                                ? 'bg-blue-100 text-blue-800'
+                                : order.status === 'Shipped'
+                                ? 'bg-purple-100 text-purple-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="p-4 text-center">No orders found</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
 };
 
 const ProductsManagement = () => {
+  const { products, loading, error } = useSellerProducts();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading products",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  if (loading) {
+    return <TableSkeleton rowCount={4} columnCount={5} />;
+  }
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -181,20 +221,26 @@ const ProductsManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {mockProducts.map(product => (
-                  <tr key={product.id} className="border-b hover:bg-muted/50">
-                    <td className="p-4">{product.name}</td>
-                    <td className="p-4">₹{product.price}</td>
-                    <td className="p-4">{product.stock}</td>
-                    <td className="p-4">{product.sold}</td>
-                    <td className="p-4">
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Edit</Button>
-                        <Button variant="destructive" size="sm">Delete</Button>
-                      </div>
-                    </td>
+                {products.length > 0 ? (
+                  products.map(product => (
+                    <tr key={product.id} className="border-b hover:bg-muted/50">
+                      <td className="p-4">{product.name}</td>
+                      <td className="p-4">₹{product.price}</td>
+                      <td className="p-4">{product.stock}</td>
+                      <td className="p-4">{product.sold}</td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">Edit</Button>
+                          <Button variant="destructive" size="sm">Delete</Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="p-4 text-center">No products found</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -205,11 +251,34 @@ const ProductsManagement = () => {
 };
 
 const OrdersManagement = () => {
+  const { orders, loading, error } = useSellerOrders();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("all");
+  
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading orders",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+  
+  const filteredOrders = React.useMemo(() => {
+    if (activeTab === "all") return orders;
+    return orders.filter(order => order.status.toLowerCase() === activeTab);
+  }, [orders, activeTab]);
+  
+  if (loading) {
+    return <TableSkeleton rowCount={4} columnCount={6} />;
+  }
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Orders</h2>
       
-      <Tabs defaultValue="all">
+      <Tabs defaultValue="all" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="all">All Orders</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -218,7 +287,7 @@ const OrdersManagement = () => {
           <TabsTrigger value="delivered">Delivered</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="all" className="mt-4">
+        <TabsContent value={activeTab} className="mt-4">
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -234,42 +303,39 @@ const OrdersManagement = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockOrders.map(order => (
-                      <tr key={order.id} className="border-b hover:bg-muted/50">
-                        <td className="p-4">#{order.id}</td>
-                        <td className="p-4">{order.customer}</td>
-                        <td className="p-4">{order.product}</td>
-                        <td className="p-4">₹{order.amount}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            order.status === 'Delivered' 
-                              ? 'bg-green-100 text-green-800' 
-                              : order.status === 'Processing' 
-                              ? 'bg-blue-100 text-blue-800'
-                              : order.status === 'Shipped'
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <Button variant="outline" size="sm">Details</Button>
-                        </td>
+                    {filteredOrders.length > 0 ? (
+                      filteredOrders.map(order => (
+                        <tr key={order.id} className="border-b hover:bg-muted/50">
+                          <td className="p-4">#{order.id}</td>
+                          <td className="p-4">{order.customer}</td>
+                          <td className="p-4">{order.product}</td>
+                          <td className="p-4">₹{order.amount}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              order.status === 'Delivered' 
+                                ? 'bg-green-100 text-green-800' 
+                                : order.status === 'Processing' 
+                                ? 'bg-blue-100 text-blue-800'
+                                : order.status === 'Shipped'
+                                ? 'bg-purple-100 text-purple-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <Button variant="outline" size="sm">Details</Button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="p-4 text-center">No orders found</td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Other tabs would have similar content with filtered data */}
-        <TabsContent value="pending" className="mt-4">
-          <Card>
-            <CardContent>
-              <p>Pending orders will appear here.</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -278,7 +344,6 @@ const OrdersManagement = () => {
   );
 };
 
-// Main SellerDashboard Component
 const SellerDashboard = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const location = useLocation();
@@ -295,7 +360,6 @@ const SellerDashboard = () => {
   return (
     <div className={`min-h-screen transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="flex h-screen overflow-hidden">
-        {/* Sidebar */}
         <aside className="hidden md:flex w-64 flex-col fixed inset-y-0 z-50 border-r bg-background">
           <div className="p-6">
             <Link to="/" className="flex items-center gap-2 font-bold text-xl">
@@ -334,9 +398,7 @@ const SellerDashboard = () => {
           </div>
         </aside>
         
-        {/* Main Content */}
         <div className="flex flex-col flex-1 md:pl-64">
-          {/* Header */}
           <header className="sticky top-0 z-10 border-b bg-background">
             <div className="flex h-16 items-center justify-between px-6">
               <div className="md:hidden">
@@ -350,7 +412,6 @@ const SellerDashboard = () => {
             </div>
           </header>
           
-          {/* Dashboard Content */}
           <main className="flex-1 overflow-y-auto p-6">
             <Routes>
               <Route index element={<DashboardOverview />} />
