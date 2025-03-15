@@ -7,9 +7,9 @@ export const PRODUCTS = [
     name: 'Handwoven Cotton Shawl',
     price: 1200,
     images: [
-      'https://images.unsplash.com/photo-1529631134462-d23a23a7070c',
-      'https://images.unsplash.com/photo-1556911220-e15b29be8c8f',
-      'https://images.unsplash.com/photo-1517010009957-7f4f4a58d40e'
+      '/Handwoven Cotton Shawl1.png',
+      '/Handwoven Cotton Shawl2.png',
+      '/Handwoven Cotton Shawl3.png'
     ],
     description: 'This beautiful handwoven cotton shawl is crafted by skilled artisans from rural Gujarat. Each piece is unique, featuring traditional patterns passed down through generations. The soft, breathable cotton makes it perfect for all seasons.',
     category: 'Clothing',
@@ -49,9 +49,9 @@ export const PRODUCTS = [
     name: 'Hand-painted Clay Pottery',
     price: 850,
     images: [
-      'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
-      'https://images.unsplash.com/photo-1524055980414-b3d9f2e6c865',
-      'https://images.unsplash.com/photo-1609921126873-76f93dbaaf87'
+      '/Hand-paintedClayPottery1.jpg',
+      '/Hand-paintedClayPottery2.jpg',
+      '/Hand-paintedClayPottery3.jpg'
     ],
     description: 'These intricately hand-painted clay pots are crafted by women artisans from rural Rajasthan. Each piece showcases traditional motifs and vibrant colors that celebrate India\'s rich artistic heritage. Perfect for home decoration or as a thoughtful gift.',
     category: 'Home Decor',

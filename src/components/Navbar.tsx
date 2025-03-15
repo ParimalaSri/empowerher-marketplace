@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Search, Menu, X, User } from 'lucide-react';
 
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -75,6 +76,7 @@ const Navbar = () => {
             >
               Contact
             </Link>
+          
           </nav>
 
           {/* Desktop Action Buttons */}

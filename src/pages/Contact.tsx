@@ -11,6 +11,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from '@/hooks/use-toast';
 import { MapPin, Mail, Phone } from 'lucide-react';
+import emailjs from 'emailjs-com';
+
+
+
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -35,17 +39,31 @@ const Contact = () => {
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Form submitted:', data);
-      toast({
-        title: "Message sent successfully!",
-        description: "We'll get back to you as soon as possible.",
-      });
-      form.reset();
-      setIsSubmitting(false);
-    }, 1500);
+  
+    emailjs.send(
+      'service_x71o489', // Replace with your EmailJS service ID
+      'template_7c9t9hd', // Replace with your EmailJS template ID
+      {
+        name: data.name,
+        email: data.email,
+        message: data.message,
+      },
+      'KtSY0KSOkOgsOQ5tT' // Replace with your EmailJS public key
+    ).then((response) => {
+        toast({
+          title: "Message sent successfully!",
+          description: "We'll get back to you as soon as possible.",
+        });
+        form.reset();
+        setIsSubmitting(false);
+    }).catch((error) => {
+        console.error('Email send error:', error);
+        toast({
+          title: "Error sending message",
+          description: "Please try again later.",
+        });
+        setIsSubmitting(false);
+    });
   };
 
   useEffect(() => {

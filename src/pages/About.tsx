@@ -32,7 +32,7 @@ const About = () => {
             
             <div className="my-12 rounded-xl overflow-hidden">
               <img 
-                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" 
+                src="group.png" 
                 alt="Women entrepreneurs collaborating" 
                 className="w-full h-auto object-cover" 
               />

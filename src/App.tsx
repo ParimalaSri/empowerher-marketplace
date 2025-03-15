@@ -20,6 +20,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import SellerDashboard from "./pages/SellerDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import ChatBot from "./components/ChatBot";
+import Hello from "./pages/hello";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/seller/dashboard/*" element={<SellerDashboard />} />
           <Route path="/customer/dashboard/*" element={<CustomerDashboard />} />
+          <Route path="/hello" element={<Hello />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

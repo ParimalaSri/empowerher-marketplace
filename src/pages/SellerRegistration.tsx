@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -57,21 +56,38 @@ const SellerRegistration = () => {
   const onSubmit = async (data: SellerFormValues) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Seller registration form submitted:', data);
-      
+    try {
+      const response = await fetch('http://localhost:5000/api/sellers/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      const result = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to register');
+      }
+  
       toast({
         title: 'Registration successful!',
         description: `Welcome to EmpowerHer Marketplace, ${data.fullName}!`,
       });
-      
-      // Redirect to login page
+  
       navigate('/login', { state: { from: 'seller' } });
-      
+    } catch (error) {
+      toast({
+        title: 'Registration failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {

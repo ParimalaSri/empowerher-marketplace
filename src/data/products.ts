@@ -7,7 +7,7 @@ export const products = [
     name: 'Block Printed Cotton Saree',
     description: 'Handcrafted cotton saree with traditional block printing by skilled rural artisans',
     price: 2200,
-    image: 'https://images.unsplash.com/photo-1556909211-369841544ff6',
+    image: 'Block Printed Cotton Saree.jpg',
     rating: 4.7,
     seller: 'Handloom Creations',
     category: 'Clothing'
@@ -17,7 +17,7 @@ export const products = [
     name: 'Beaded Tribal Necklace',
     description: 'Hand-crafted necklace featuring traditional tribal beadwork and patterns',
     price: 750,
-    image: 'https://images.unsplash.com/photo-1593504049359-74330189a345',
+    image: 'Beaded Tribal Necklace.png',
     rating: 4.7,
     seller: 'Ethnic Adornments',
     category: 'Accessories'
@@ -27,7 +27,7 @@ export const products = [
     name: 'Organic Honey - 500g',
     description: 'Pure, raw honey harvested from community-managed beehives',
     price: 350,
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+    image: 'honey.png',
     rating: 4.7,
     seller: 'Nature\'s Bounty',
     category: 'Organic Food'
@@ -37,7 +37,7 @@ export const products = [
     name: 'Carved Marble Vase',
     description: 'Uniquely designed vase hand-carved from natural marble by skilled women artisans',
     price: 1750,
-    image: 'https://images.unsplash.com/photo-1560185007-a8b92c3bd566',
+    image: 'curved marbel.png',
     rating: 4.6,
     seller: 'Stone Artisans',
     category: 'Home Decor'

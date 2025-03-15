@@ -47,26 +47,54 @@ const CustomerRegistration = () => {
       newsletter: true
     }
   });
-
   const onSubmit = async (data: CustomerFormValues) => {
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Customer registration form submitted:', data);
-      
-      toast({
-        title: 'Registration successful!',
-        description: `Welcome to EmpowerHer Marketplace, ${data.fullName}!`,
+  
+    try {
+      const response = await fetch('http://localhost:5000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.fullName,  // Adjust field names to match Flask backend
+          email: data.email,
+          password: data.password,
+        }),
       });
+  
+      const result = await response.json();
       
-      // Redirect to login page
-      navigate('/login');
-      
+      if (response.ok) {
+        console.log('Customer registration form submitted:', result);
+  
+        toast({
+          title: 'Registration successful!',
+          description: `Welcome to EmpowerHer Marketplace, ${data.fullName}!`,
+          //variant: 'solid', // ✅ Use 'variant' instead of 'status'
+        });
+  
+        // Redirect to login page
+        navigate('/login');
+      } else {
+        toast({
+          title: 'Registration failed',
+          description: result.error || 'Something went wrong',
+          //variant: 'subtle', 
+        });
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast({
+        title: 'Registration failed',
+        description: 'Unable to connect to the server',
+        //variant: 'subtle', // ✅ Change 'status' to 'variant'
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
-
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setPageLoaded(true);

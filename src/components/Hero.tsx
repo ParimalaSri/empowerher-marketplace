@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
 const Hero = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -21,10 +22,10 @@ const Hero = () => {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-background/70 z-10" />
         <img
-          src="https://images.unsplash.com/photo-1591888181001-ea11eb95e46c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+          src="woman.png"
           alt="Rural women artisans"
           className={cn(
-            "w-full h-full object-cover transition-all duration-2000 ease-out",
+            "w-full h-full object-cover transition-all duration-2000 ease-out transform -translate-x-[-170px]",
             isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-110"
           )}
           onLoad={() => setIsLoaded(true)}
@@ -75,11 +76,18 @@ const Hero = () => {
             )}
           >
             <Button className="btn-shine text-base px-8 py-6" size="lg">
-              Shop Now
+              <Link to="/products"  >
+                  Shop Now
+              </Link>
+             
               <ShoppingBag className="ml-2 h-5 w-5" />
             </Button>
             <Button variant="outline" className="text-base px-8 py-6" size="lg">
-              Start Selling
+              <Link to="/seller/register">
+                           
+                  Start Selling
+                            
+              </Link>
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>

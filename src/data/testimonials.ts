@@ -6,7 +6,7 @@ export const testimonials = [
     id: 1,
     name: "Lakshmi Devi",
     location: "Karnataka, India",
-    image: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1952&q=80",
+    image: "clothing.png",
     text: "Before joining EmpowerHer, I was struggling to sell my handwoven baskets beyond my village. Now, I have customers from across the globe appreciating my craft. This platform has not only increased my income but also given me a sense of pride in preserving my traditional skills.",
     business: "Traditional Basket Weaving",
     year: "Member since 2020"

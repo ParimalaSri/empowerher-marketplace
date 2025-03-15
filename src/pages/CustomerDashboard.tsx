@@ -521,6 +521,41 @@ const CustomerDashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const [username, setUsername] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token"); // ✅ Retrieve token from localStorage
+      console.log(token);
+      if (!token) {
+        setUsername("Guest");
+        return;
+      }
+  
+      try {
+        const response = await fetch("http://localhost:5000/user", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`, // ✅ Use dynamic token
+            "Content-Type": "application/json"
+          },
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          setUsername(data.username);
+        } else {
+          setUsername("Guest");
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setUsername("Guest");
+      }
+    };
+  
+    fetchUser();
+  }, []);
+  
+
   return (
     <div className={`min-h-screen transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="flex h-screen overflow-hidden">
@@ -571,7 +606,7 @@ const CustomerDashboard = () => {
                 </Link>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">Welcome, Aarti Patel</span>
+                <span className="text-sm font-medium"><h1>Hello, {username ? username : "Guest"}!</h1></span>
               </div>
             </div>
           </header>
