@@ -21,7 +21,7 @@ const DashboardOverview = () => {
   const { stats, loading, error } = useSellerStats();
   const { orders, loading: ordersLoading } = useSellerOrders();
   const { toast } = useToast();
-  
+
   useEffect(() => {
     if (error) {
       toast({
@@ -346,7 +346,10 @@ const OrdersManagement = () => {
 
 const SellerDashboard = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
-  const location = useLocation();
+  const location = useLocation(); 
+  const email = location.state?.email || "Guest";
+  const trimmedEmail = email.replace(/@gmail\.com$/, "");
+  console.log("Email:", trimmedEmail);
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -407,7 +410,7 @@ const SellerDashboard = () => {
                 </Link>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">Welcome, Meena Kumari</span>
+                <span className="text-sm font-medium">Welcome, {trimmedEmail}!!</span>
               </div>
             </div>
           </header>
