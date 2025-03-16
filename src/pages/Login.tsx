@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { toast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff } from 'lucide-react';
+import axios from "axios";
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -54,53 +55,94 @@ const Login = () => {
 
   
 
-  const onSubmit = async (data: LoginValues) => {
-    setIsSubmitting(true);
+  // const onSubmit = async (data: LoginValues) => {
+  //   setIsSubmitting(true);
   
-    try {
-      const loginType = activeTab === "seller" ? "seller" : "customer";
-      const apiUrl = `http://localhost:5000/api/auth/${loginType}-login`;
+  //   try {
+  //     const loginType = activeTab === "seller" ? "seller" : "customer";
+  //     const apiUrl = `http://localhost:5000/api/auth/${loginType}-login`;
   
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+  //     const response = await fetch(apiUrl, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "Accept": "application/json",
+  //       },
+  //       body: JSON.stringify(data),
+  //     });
   
-      const result = await response.json();
+  //     const result = await response.json();
   
-      if (!response.ok) {
-        throw new Error(result.error || "Login failed.");
-      }
+  //     if (!response.ok) {
+  //       throw new Error(result.error || "Login failed.");
+  //     }
   
-      console.log("Login Successful:", result);
+  //     console.log("Login Successful:", result);
   
-      toast({
-        title: "Login Successful!",
-        description: `Welcome back to ${loginType} dashboard.`,
-      });
+  //     toast({
+  //       title: "Login Successful!",
+  //       description: `Welcome back to ${loginType} dashboard.`,
+  //     });
   
-      setTimeout(() => {
-        navigate(`/${loginType}/dashboard`, { state: { email: data.email } }); // Pass email via state
-      }, 500);
-      console.log("Email:", data.email);
-    } catch (error) {
-      console.error("Login Error:", error);
+  //     setTimeout(() => {
+  //       navigate(`/${loginType}/dashboard`, { state: { email: data.email } }); // Pass email via state
+  //     }, 500);
+  //     console.log("Email:", data.email);
+  //   } catch (error) {
+  //     console.error("Login Error:", error);
   
-      toast({
-        title: "Login Failed",
-        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    }
+  //     toast({
+  //       title: "Login Failed",
+  //       description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
   
-    setIsSubmitting(false);
-  };
+  //   setIsSubmitting(false);
+  // };
   
-  
+
+
+const onSubmit = async (data: LoginValues) => {
+  setIsSubmitting(true);
+
+  try {
+    const loginType = activeTab === "seller" ? "seller" : "customer";
+    const apiUrl = `http://localhost:5000/api/auth/${loginType}-login`;
+
+    const response = await axios.post(apiUrl, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    console.log("Login Successful:", response.data);
+       // ✅ Store token in localStorage
+    localStorage.setItem("token", response.data.token);
+
+    toast({
+      title: "Login Successful!",
+      description: `Welcome back to ${loginType} dashboard.`,
+    });
+
+    setTimeout(() => {
+      navigate(`/${loginType}/dashboard`, { state: { email: data.email } }); // Pass email via state
+    }, 500);
+    console.log("Email:", data.email);
+  } catch (error) {
+    console.error("Login Error:", error);
+
+    toast({
+      title: "Login Failed",
+      description: error.response?.data?.error || "Something went wrong. Please try again.",
+      variant: "destructive",
+    });
+  }
+
+  setIsSubmitting(false);
+};
+
   return (
     <div className={`min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-muted/30 transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="max-w-md w-full space-y-6">

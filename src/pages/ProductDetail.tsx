@@ -14,7 +14,7 @@ import { PRODUCTS } from '@/data/productsDetail';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<typeof PRODUCTS[0]>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -53,13 +53,47 @@ const ProductDetail = () => {
     });
   };
 
-  const addToWishlist = () => {
-    toast({
-      title: 'Added to wishlist',
-      description: `${product.name} has been added to your wishlist`,
-    });
+  // const addToWishlist = () => {
+  //   toast({
+  //     title: 'Added to wishlist',
+  //     description: `${product.name} has been added to your wishlist`,
+  //   });
+  // };
+
+  const addToWishlist = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/wishlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId: product.id }), // Send product ID
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        toast({
+          title: "Added to wishlist",
+          description: `${product.name} has been added to your wishlist`,
+        });
+      } else {
+        throw new Error(data.error || "Failed to add to wishlist");
+      }
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
+  
+  
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -326,7 +360,7 @@ const ProductDetail = () => {
               
               {product.reviews.length > 0 ? (
                 <div className="space-y-6">
-                  {product.reviews.map((review: any) => (
+                  {product.reviews.map((review: { id: string, user: string, rating: number, comment: string, date: string }) => (
                     <div key={review.id} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="font-medium">{review.user}</div>

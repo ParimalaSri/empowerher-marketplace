@@ -16,6 +16,7 @@ import {
   DashboardSkeleton 
 } from '@/components/ui/dashboard/loading-state';
 import { useToast } from '@/components/ui/use-toast';
+import axios from "axios";
 
 const DashboardOverview = () => {
   const { stats, loading, error } = useSellerStats();
@@ -347,9 +348,30 @@ const OrdersManagement = () => {
 const SellerDashboard = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const location = useLocation(); 
-  const email = location.state?.email || "Guest";
-  const trimmedEmail = email.replace(/@gmail\.com$/, "");
-  console.log("Email:", trimmedEmail);
+  const token = localStorage.getItem("token");
+  const [data, setData] = useState("");
+  
+
+
+  useEffect(() => {
+    console.log(token);
+    if (!token) {
+      console.log(token);
+      console.error("No token found");
+      return;
+    }
+  
+    axios
+      .get("http://127.0.0.1:5000/user", {
+        headers: {  Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((response) => {
+        console.log("User data:", response.data.message);
+        setData(response.data.message);  // ✅ Set entire response data
+      })
+      .catch((error) => console.error("Error fetching protected data", error));
+  }, [token]);
+  
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -410,7 +432,7 @@ const SellerDashboard = () => {
                 </Link>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">Welcome, {trimmedEmail}!!</span>
+                <span className="text-sm font-medium">Welcome, {data}!!</span>
               </div>
             </div>
           </header>

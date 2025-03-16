@@ -21,6 +21,7 @@ import {
   DashboardSkeleton 
 } from '@/components/ui/dashboard/loading-state';
 import { useToast } from '@/components/ui/use-toast';
+import axios from "axios";
 
 const mockOrders = [
   { id: 1234, date: '2023-08-15', items: 2, total: 2050, status: 'Delivered' },
@@ -29,9 +30,20 @@ const mockOrders = [
 ];
 
 const mockWishlist = [
-  { id: 1, name: 'Handcrafted Textile Wall Hanging', price: 1200, seller: 'Lakshmi Crafts' },
-  { id: 2, name: 'Organic Honey (500g)', price: 350, seller: 'Nature\'s Bounty' },
-  { id: 3, name: 'Silver Filigree Earrings', price: 1800, seller: 'Silver Heritage' },
+  {
+    email: "user1@example.com",
+    wishlist: [
+      { id: 1, name: "Handcrafted Textile Wall Hanging", price: 1200, seller: "Lakshmi Crafts" },
+      { id: 2, name: "Organic Honey (500g)", price: 350, seller: "Nature's Bounty" }
+    ]
+  },
+  {
+    email: "user2@example.com",
+    wishlist: [
+      { id: 3, name: "Silver Filigree Earrings", price: 1800, seller: "Silver Heritage" },
+      { id: 4, name: "Handmade Terracotta Vase", price: 950, seller: "Clay Creations" }
+    ]
+  }
 ];
 
 const mockAddresses = [
@@ -512,12 +524,28 @@ const ProfileSettings = () => {
 const CustomerDashboard = () => { 
   const [pageLoaded, setPageLoaded] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
-  const location = useLocation();
-  // const email = location.state?.email || "Guest";
-  // console.log("Email:", email);
-  const email = location.state?.email || "Guest";
-const trimmedEmail = email.replace(/@gmail\.com$/, "");
-console.log("Email:", trimmedEmail);
+  const token = localStorage.getItem("token");
+  const [data, setData] = useState("");
+
+useEffect(() => {
+  console.log(token);
+  if (!token) {
+    console.log(token);
+    console.error("No token found");
+    return;
+  }
+
+  axios
+    .get("http://127.0.0.1:5000/user", {
+      headers: {  Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+    .then((response) => {
+      console.log("User data:", response.data.message);
+      setData(response.data.message);  // ✅ Set entire response data
+    })
+    .catch((error) => console.error("Error fetching protected data", error));
+}, [token]);
+
 
 
   useEffect(() => {
@@ -580,7 +608,9 @@ console.log("Email:", trimmedEmail);
                 </Link>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium"><h1>Hello, {trimmedEmail}!!</h1></span>
+              <span className="text-sm font-medium">
+  {data && <h1>Hello, {data}!!</h1>}
+</span>
               </div>
             </div>
           </header>
@@ -601,3 +631,4 @@ console.log("Email:", trimmedEmail);
 };
 
 export default CustomerDashboard;
+
