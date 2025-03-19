@@ -4,12 +4,38 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Search, Menu, X, User } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+
 
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  const navigate = useNavigate();
+
+
+
+  const token = localStorage.getItem("token");
+  const isLoggedIn = token !== null && token.trim() !== ""; // ✅ Improved check
+  useEffect(() => {
+    console.log("Token on Home Page:", localStorage.getItem("token"));
+  }, []);
+  
+  const handleProfileClick = () => {
+    const token = localStorage.getItem("token");
+    console.log("Token on Profile Click:", token);
+    
+    if (token) {
+      console.log("Redirecting to /customer/dashboard");
+      navigate("/customer/dashboard");
+    } else {
+      console.log("Redirecting to /login");
+      navigate("/login");
+    }
+  };
+  
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,12 +117,15 @@ const Navbar = () => {
                 <span className="sr-only">Cart</span>
               </Button>
             </Link>
-            <Link to="/login">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <User size={20} />
-                <span className="sr-only">Account</span>
-              </Button>
-            </Link>
+            
+               {/* Profile Button (Redirects based on login status) */}
+             <Button variant="ghost" size="icon" className="rounded-full" onClick={handleProfileClick}>
+  <User size={20} />
+  <span className="sr-only">Account</span>
+</Button>
+
+
+            
             <Link to="/seller/register">
               <Button className="rounded-full btn-shine" size="sm">
                 Start Selling

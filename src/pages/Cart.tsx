@@ -6,28 +6,10 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-// Sample cart data
-const CART_ITEMS = [
-  {
-    id: '1',
-    name: 'Handwoven Cotton Shawl',
-    price: 1200,
-    quantity: 1,
-    image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
-    seller: 'Lakshmi Crafts',
-    discount: 10
-  },
-  {
-    id: '2',
-    name: 'Hand-painted Clay Pottery',
-    price: 850,
-    quantity: 2,
-    image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
-    seller: 'Village Artisans',
-    discount: 0
-  }
-];
 
 interface CartItem {
   id: string;
@@ -41,10 +23,46 @@ interface CartItem {
 
 const Cart = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>(CART_ITEMS);
+  // const [cartItems, setCartItems] = useState<CartItem[]>(CART_ITEMS[0].wishlist);
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoDiscount, setPromoDiscount] = useState(0);
+  const { toast } = useToast();
+  const username = localStorage.getItem("username"); // Fetch stored username
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+    console.log("username:", username);
+
+
+  useEffect(() => {
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        console.error("No token found!");
+        setLoading(false);
+        return;
+      }
+  
+      axios
+        .get("http://127.0.0.1:5000/api/carts", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          console.log("Raw Response:", res);
+          setCartItems(res.data.cart || []); // Ensure it's always an array
+        })
+        .catch((error) => {
+          console.error("Error fetching wishlist:", error);
+          setError(error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, []);
 
   const updateQuantity = (id: string, change: number) => {
     setCartItems(prev => 

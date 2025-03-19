@@ -1,5 +1,68 @@
+// import React, { useEffect, useState } from 'react';
+// import { Link } from 'react-router-dom';
+// import Navbar from '@/components/Navbar';
+// import Footer from '@/components/Footer';
+// import { Button } from '@/components/ui/button';
+// import { Separator } from '@/components/ui/separator';
+// import { Slider } from '@/components/ui/slider';
+// import { Checkbox } from '@/components/ui/checkbox';
+// import { ChevronDown, Filter, SlidersHorizontal, ShoppingCart, Heart } from 'lucide-react';
+// import { ALL_PRODUCTS, CATEGORIES } from '@/data/productsView';
+
+// const Products = () => {
+//   const [pageLoaded, setPageLoaded] = useState(false);
+//   const [priceRange, setPriceRange] = useState([0, 5000]);
+//   const [filteredProducts, setFilteredProducts] = useState(ALL_PRODUCTS);
+//   const [showFilters, setShowFilters] = useState(false);
+//   const [selectedCategories, setSelectedCategories] = useState<string[]>(['all']);
+
+//   const handleCategoryChange = (category: string) => {
+//     if (category === 'all') {
+//       setSelectedCategories(['all']);
+//       return;
+//     }
+    
+//     const newSelected = selectedCategories.includes('all')
+//       ? [category]
+//       : selectedCategories.includes(category)
+//         ? selectedCategories.filter(c => c !== category)
+//         : [...selectedCategories, category];
+        
+//     if (newSelected.length === 0) {
+//       setSelectedCategories(['all']);
+//     } else {
+//       setSelectedCategories(newSelected);
+//     }
+//   };
+
+//   useEffect(() => {
+//     let filtered = ALL_PRODUCTS;
+    
+//     filtered = filtered.filter(product => 
+//       product.price >= priceRange[0] && product.price <= priceRange[1]
+//     );
+    
+//     if (!selectedCategories.includes('all')) {
+//       filtered = filtered.filter(product =>
+//         selectedCategories.some(cat => product.category.toLowerCase() === cat.replace(/-/g, ' '))
+//       );
+//     }
+//     //making chnages
+//     setFilteredProducts(filtered);
+//   }, [priceRange, selectedCategories]);
+
+//   useEffect(() => {
+//     const timer = setTimeout(() => {
+//       setPageLoaded(true);
+//     }, 100);
+
+//     window.scrollTo(0, 0);
+//     return () => clearTimeout(timer);
+//   }, []);
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -7,27 +70,49 @@ import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown, Filter, SlidersHorizontal, ShoppingCart, Heart } from 'lucide-react';
-import { ALL_PRODUCTS, CATEGORIES } from '@/data/productsView';
 
 const Products = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 5000]);
-  const [filteredProducts, setFilteredProducts] = useState(ALL_PRODUCTS);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['all']);
+  const [error, setError] = useState(null);
+  const CATEGORIES = [
+    { id: 'all', name: 'All Categories' },
+    { id: 'handicrafts', name: 'Handicrafts' },
+    { id: 'clothing', name: 'Clothing' },
+    { id: 'organic-food', name: 'Organic Food' },
+    { id: 'home-decor', name: 'Home Decor' },
+    { id: 'accessories', name: 'Accessories' }
+  ];
+
+  // Fetch product data from the backend
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:5000/api/products")  // Adjust endpoint if necessary
+      .then((res) => {
+        console.log("Products Data:", res.data);
+        setFilteredProducts(res.data); // Set fetched data as filtered products
+      })
+      .catch((err) => {
+        console.error("Error fetching products:", err);
+        setError(err);
+      });
+  }, []);
 
   const handleCategoryChange = (category: string) => {
     if (category === 'all') {
       setSelectedCategories(['all']);
       return;
     }
-    
+
     const newSelected = selectedCategories.includes('all')
       ? [category]
       : selectedCategories.includes(category)
         ? selectedCategories.filter(c => c !== category)
         : [...selectedCategories, category];
-        
+
     if (newSelected.length === 0) {
       setSelectedCategories(['all']);
     } else {
@@ -35,20 +120,26 @@ const Products = () => {
     }
   };
 
+  // Filter products based on price and category
   useEffect(() => {
-    let filtered = ALL_PRODUCTS;
-    
-    filtered = filtered.filter(product => 
-      product.price >= priceRange[0] && product.price <= priceRange[1]
-    );
-    
-    if (!selectedCategories.includes('all')) {
-      filtered = filtered.filter(product =>
-        selectedCategories.some(cat => product.category.toLowerCase() === cat.replace(/-/g, ' '))
-      );
-    }
-    
-    setFilteredProducts(filtered);
+    axios
+      .get("http://127.0.0.1:5000/api/products")
+      .then((res) => {
+        let filtered = res.data;
+
+        filtered = filtered.filter(product =>
+          product.price >= priceRange[0] && product.price <= priceRange[1]
+        );
+
+        if (!selectedCategories.includes('all')) {
+          filtered = filtered.filter(product =>
+            selectedCategories.some(cat => product.category.toLowerCase() === cat.replace(/-/g, ' '))
+          );
+        }
+
+        setFilteredProducts(filtered);
+      })
+      .catch((err) => setError(err));
   }, [priceRange, selectedCategories]);
 
   useEffect(() => {
@@ -59,6 +150,7 @@ const Products = () => {
     window.scrollTo(0, 0);
     return () => clearTimeout(timer);
   }, []);
+
 
   return (
     <div className={`min-h-screen flex flex-col transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>

@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { PRODUCTS } from '@/data/productsDetail';
+import axios from "axios";
+import { useToast } from "@chakra-ui/react";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +21,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [pageLoaded, setPageLoaded] = useState(false);
-
+  const token = localStorage.getItem('token');
   useEffect(() => {
     // Simulate API fetch
     setTimeout(() => {
@@ -47,52 +49,107 @@ const ProductDetail = () => {
   };
 
   const addToCart = () => {
-    toast({
-      title: 'Added to cart',
-      description: `${quantity} x ${product.name} added to your cart`,
-    });
-  };
-
-  // const addToWishlist = () => {
-  //   toast({
-  //     title: 'Added to wishlist',
-  //     description: `${product.name} has been added to your wishlist`,
-  //   });
-  // };
-
-  const addToWishlist = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/wishlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId: product.id }), // Send product ID
-      });
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        toast({
-          title: "Added to wishlist",
-          description: `${product.name} has been added to your wishlist`,
-        });
-      } else {
-        throw new Error(data.error || "Failed to add to wishlist");
-      }
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
+    if (!token) {
+      console.error("User not logged in.");
       toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
+        title: "Login Required",
+        description: "Please log in to add items to your wishlist.",
+        status: "error",
       });
+      return;
     }
+    console.log('Product added to cart:', product);
+
+    const selectedProduct = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        seller: product.seller.name,
+    
+        discount: product.discount
+        
+    };
+
+    // Log only the selected fields
+    console.log('Product added to cart:', JSON.stringify(selectedProduct, null, 2));
+
+    axios.post("http://127.0.0.1:5000/api/cart-add", selectedProduct, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`  // Send JWT token in Authorization header
+        }
+    })
+    .then(response => {
+        console.log("Product added to cart successfully:", response.data);
+    })
+    .catch(error => {
+        console.error("Error adding product to cart:", error.response ? error.response.data : error.message);
+    });
+
+    toast({
+        title: 'Added to Cart',
+        description: `${product.name} has been added to your cart`,
+    });
+
+
+
+    
+};
+
+
+const addToWishlist = () => {
+  if (!token) {
+    console.error("User not logged in.");
+    toast({
+      title: "Login Required",
+      description: "Please log in to add items to your wishlist.",
+      status: "error",
+    });
+    return;
+  }
+
+  console.log("Product added to wishlist:", product);
+
+  const selectedProduct = {
+    name: product.name,
+    price: product.price,
+    seller: product.seller.name,
+    image: product.images[0],
   };
 
-  
+  axios
+    .post("http://127.0.0.1:5000/api/wishlist-add", selectedProduct, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      console.log("Product added to wishlist successfully:", response.data);
+
+      // ✅ Show toast only on success
+      toast({
+        title: "Added to wishlist",
+        description: `${product.name} has been added to your wishlist`,
+        status: "success",
+      });
+    })
+    .catch((error) => {
+      console.error(
+        "Error adding product to wishlist:",
+        error.response ? error.response.data : error.message
+      );
+
+      // ❌ Show error toast on failure
+      toast({
+        title: "Failed to add",
+        description:
+          error.response?.data?.message || "Something went wrong. Try again.",
+        status: "error",
+      });
+    });
+};
+
   
   if (loading) {
     return (
@@ -184,6 +241,7 @@ const ProductDetail = () => {
                 <div className="flex items-center text-amber-500 text-sm ml-4">
                   <Star className="fill-amber-500 h-4 w-4" />
                   <span className="ml-1">{product.seller.rating}</span>
+                  
                 </div>
               </div>
               

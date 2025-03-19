@@ -22,54 +22,162 @@ import {
 } from '@/components/ui/dashboard/loading-state';
 import { useToast } from '@/components/ui/use-toast';
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const mockOrders = [
-  { id: 1234, date: '2023-08-15', items: 2, total: 2050, status: 'Delivered' },
-  { id: 1235, date: '2023-09-22', items: 1, total: 850, status: 'Processing' },
-  { id: 1236, date: '2023-10-05', items: 3, total: 1750, status: 'Shipped' },
-];
 
-const mockWishlist = [
-  {
-    email: "user1@example.com",
-    wishlist: [
-      { id: 1, name: "Handcrafted Textile Wall Hanging", price: 1200, seller: "Lakshmi Crafts" },
-      { id: 2, name: "Organic Honey (500g)", price: 350, seller: "Nature's Bounty" }
-    ]
-  },
-  {
-    email: "user2@example.com",
-    wishlist: [
-      { id: 3, name: "Silver Filigree Earrings", price: 1800, seller: "Silver Heritage" },
-      { id: 4, name: "Handmade Terracotta Vase", price: 950, seller: "Clay Creations" }
-    ]
-  }
-];
 
-const mockAddresses = [
-  { id: 1, name: 'Home', address: '123 Main Street, Green Park', city: 'Delhi', state: 'Delhi', pincode: '110016', default: true },
-  { id: 2, name: 'Office', address: '456 Business Avenue, Sector 18', city: 'Noida', state: 'UP', pincode: '201301', default: false },
-];
 
 const DashboardOverview = () => {
-  const { stats, loading, error } = useCustomerStats();
-  const { orders, loading: ordersLoading } = useCustomerOrders();
+  const { stats, loading: statsLoading, error: statsError } = useCustomerStats();
   const { toast } = useToast();
-  
+
+  // State for recent orders
+  const [orders, setRecentOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState(null);
+  const username = localStorage.getItem("username"); // Fetch stored username
+  const [wishlistItems, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [activeTab, setActiveTab] = useState("all");
+  const [ordersCount, setOrdersCount] = useState(0);
+  const [addresses, setAddresses] = useState([]);
+  const [addressCount, setAddressCount] = useState(0);
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    if (error) {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/addresses", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      // .then((res) => setAddresses(res.data.addresses || []))
+      .then((res) => {
+        console.log("Raw Response:", res);
+        setRecentOrders(res.data[0]?.orders || []);
+        //address
+        setAddresses(res.data[0]?.addresses || []);
+        const address_count = res.data[0]?.address?.length || 0;
+        console.log("address:", address_count);
+        
+      })
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
+
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found!");
+      setOrdersLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/customer/orders", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log("Raw Response:", res);
+        setRecentOrders(res.data[0]?.orders || []);
+        const ordersCount = res.data[0]?.orders?.length || 0;
+        console.log("Orders Count:", ordersCount);
+        console.log("Orders:", res.data[0]?.orders);
+        
+      })
+      .catch((error) => {
+        console.error("Error fetching orders:", error);
+        setOrdersError(error);
+      })
+      .finally(() => {
+        setOrdersLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found!");
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/wishlist", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log("Raw Response:", res);
+        setWishlist(res.data.wishlist || []); // Ensure it's always an array
+        const wishlistCount = res.data?.wishlist?.length || 0;
+        setWishlistCount(wishlistCount);
+        console.log("Wishlist Count:", wishlistCount);
+        
+      })
+      .catch((error) => {
+        console.error("Error fetching wishlist:", error);
+        setError(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found!");
+      setOrdersLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/customer/orders", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log("Raw Response:", res);
+        setRecentOrders((res.data[0]?.orders || []).slice(0, 2));
+        const ordersCount = res.data[0]?.orders?.length || 0;
+        setOrdersCount(ordersCount);
+        console.log("Orders Count:", ordersCount);
+        console.log("Orders:", res.data[0]?.orders);
+
+      })
+      .catch((error) => {
+        console.error("Error fetching orders:", error);
+        setOrdersError(error);
+      })
+      .finally(() => {
+        setOrdersLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (statsError || ordersError) {
       toast({
-        title: "Error loading dashboard data",
-        description: error.message,
+        title: "Error loading data",
+        description: statsError?.message || ordersError?.message,
         variant: "destructive",
       });
     }
-  }, [error, toast]);
-  
-  if (loading) {
+  }, [statsError, ordersError, toast]);
+
+  if (statsLoading || ordersLoading) {
     return <DashboardSkeleton />;
   }
-  
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -79,7 +187,7 @@ const DashboardOverview = () => {
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.orders.total}</div>
+            <div className="text-2xl font-bold">{ordersCount}</div>
             <p className="text-xs text-muted-foreground">{stats?.orders.recent} orders {stats?.orders.period}</p>
           </CardContent>
         </Card>
@@ -89,7 +197,7 @@ const DashboardOverview = () => {
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.wishlist.total}</div>
+            <div className="text-2xl font-bold">{wishlistCount}</div>
             <p className="text-xs text-muted-foreground">Added {stats?.wishlist.added} {stats?.wishlist.period}</p>
           </CardContent>
         </Card>
@@ -99,7 +207,7 @@ const DashboardOverview = () => {
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.addresses.total}</div>
+            <div className="text-2xl font-bold">{addressCount}</div>
             <p className="text-xs text-muted-foreground">{stats?.addresses.names}</p>
           </CardContent>
         </Card>
@@ -127,11 +235,11 @@ const DashboardOverview = () => {
                 </thead>
                 <tbody>
                   {orders.length > 0 ? (
-                    orders.map(order => (
-                      <tr key={order.id} className="border-b">
+                    orders.map((order, index) => (
+                      <tr key={order.id || index} className="border-b">
                         <td className="p-3">#{order.id}</td>
                         <td className="p-3">{order.date}</td>
-                        <td className="p-3">{order.items}</td>
+                        <td className="p-3">{Array.isArray(order.items) ? order.items.join(", ") : order.items}</td>
                         <td className="p-3">₹{order.total}</td>
                         <td className="p-3">
                           <span className={`px-2 py-1 rounded-full text-xs ${
@@ -161,38 +269,50 @@ const DashboardOverview = () => {
         </Card>
       )}
 
-      {loading ? (
-        <TableSkeleton />
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recently Viewed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {stats?.recentlyViewed && stats.recentlyViewed.length > 0 ? (
-                stats.recentlyViewed.map(item => (
-                  <div key={item.id} className="p-4 border rounded-lg text-center">
-                    <img src={item.image} alt={item.name} className="mx-auto h-24 w-auto object-cover rounded mb-2" />
-                    <h3 className="font-medium text-sm">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">₹{item.price}</p>
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-3 p-4 text-center">No recently viewed products</div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      
     </div>
   );
 };
 
+
+
 const OrderHistory = () => {
-  const { orders, loading, error } = useCustomerOrders();
+  
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("all");
+  const { stats, loading: statsLoading, error: statsError } = useCustomerStats();
+
+  // State for recent orders
+  const [orders, setRecentOrders] = useState([]);
+  const [loading, setOrdersLoading] = useState(true);
+  const [error, setOrdersError] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found!");
+      setOrdersLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/customer/orders", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log("Raw Response:", res);
+        setRecentOrders(res.data[0]?.orders || []);
+
+      })
+      .catch((error) => {
+        console.error("Error fetching orders:", error);
+        setOrdersError(error);
+      })
+      .finally(() => {
+        setOrdersLoading(false);
+      });
+  }, []);
   
   useEffect(() => {
     if (error) {
@@ -289,69 +409,94 @@ const OrderHistory = () => {
 };
 
 const Wishlist = () => {
-  const { wishlist, loading, error } = useWishlist();
   const { toast } = useToast();
-  
+  const username = localStorage.getItem("username"); // Fetch stored username
+  const [wishlistItems, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  console.log("username:", username);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found!");
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/wishlist", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log("Raw Response:", res);
+        setWishlist(res.data.wishlist || []); // Ensure it's always an array
+        const wishlistCount = res.data?.wishlist?.length || 0;
+        console.log("Wishlist Count:", wishlistCount);
+        
+      })
+      .catch((error) => {
+        console.error("Error fetching wishlist:", error);
+        setError(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    console.log("Updated Wishlist State:", wishlistItems);
+  }, [wishlistItems]);
+
   useEffect(() => {
     if (error) {
       toast({
         title: "Error loading wishlist",
-        description: error.message,
+        description: error.message || "Something went wrong!",
         variant: "destructive",
       });
     }
   }, [error, toast]);
-  
+
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">My Wishlist</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <div className="flex flex-col gap-3">
-                  <Skeleton className="h-36 w-full" />
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-1/4" />
-                  <div className="flex gap-2 mt-2">
-                    <Skeleton className="h-9 w-full" />
-                    <Skeleton className="h-9 w-9" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <p className="text-center text-lg">Loading...</p>;
   }
-  
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">My Wishlist</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {wishlist.length > 0 ? (
-          wishlist.map(item => (
+        {wishlistItems.length > 0 ? (
+          wishlistItems.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex flex-col gap-3">
                   <div className="bg-muted rounded-md h-36 flex items-center justify-center">
-                    <img 
-                      src={`https://source.unsplash.com/random/300x200?${item.name.replace(' ', '+')}`} 
-                      alt={item.name} 
+                    <img
+                      src={`https://source.unsplash.com/random/300x200?${item.name.replace(
+                        " ",
+                        "+"
+                      )}`}
+                      alt={item.name}
                       className="max-h-full max-w-full object-cover"
                     />
                   </div>
                   <div>
                     <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">By {item.seller}</p>
+                    <p className="text-sm text-muted-foreground">
+                      By {item.seller}
+                    </p>
                     <p className="font-medium mt-2">₹{item.price}</p>
                   </div>
                   <div className="flex gap-2 mt-2">
-                    <Button variant="default" className="flex-1">Add to Cart</Button>
+                    <Button variant="default" className="flex-1">
+                      Add to Cart
+                    </Button>
                     <Button variant="outline" size="icon">
                       <Heart className="h-4 w-4 fill-current" />
                     </Button>
@@ -373,79 +518,99 @@ const Wishlist = () => {
   );
 };
 
+
+
+
 const AddressBook = () => {
-  const { addresses, loading, error } = useAddresses();
   const { toast } = useToast();
-  
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    name: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+  });
+
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error loading addresses",
-        description: error.message,
-        variant: "destructive",
-      });
+    if (!token) {
+      setLoading(false);
+      return;
     }
-  }, [error, toast]);
-  
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Address Book</h2>
-          <Skeleton className="h-9 w-36" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2].map(i => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-24 w-full" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  
+
+    axios
+      .get("http://127.0.0.1:5000/api/addresses", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setAddresses(res.data.addresses || []))
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleChange = (e) => {
+    setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    axios
+      .post("http://127.0.0.1:5000/api/add-address", newAddress, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setAddresses([...addresses, res.data]); // Add new address to UI
+        setNewAddress({ name: "", street: "", city: "", state: "", zipcode: "", country: "" });
+        setShowForm(false);
+        toast({ title: "Address added successfully", variant: "success" });
+      })
+      .catch((err) => toast({ title: "Error adding address", description: err.message, variant: "destructive" }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Address Book</h2>
-        <Button>Add New Address</Button>
+        <Button onClick={() => setShowForm(!showForm)}>Add New Address</Button>
       </div>
-      
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="border p-4 rounded-lg space-y-3">
+          <input type="text" name="name" placeholder="Name" value={newAddress.name} onChange={handleChange} required className="border p-2 w-full" />
+          <input type="text" name="street" placeholder="Street" value={newAddress.street} onChange={handleChange} required className="border p-2 w-full" />
+          <input type="text" name="city" placeholder="City" value={newAddress.city} onChange={handleChange} required className="border p-2 w-full" />
+          <input type="text" name="state" placeholder="State" value={newAddress.state} onChange={handleChange} required className="border p-2 w-full" />
+          <input type="text" name="zipcode" placeholder="Zipcode" value={newAddress.zipcode} onChange={handleChange} required className="border p-2 w-full" />
+          <input type="text" name="country" placeholder="Country" value={newAddress.country} onChange={handleChange} required className="border p-2 w-full" />
+          <Button type="submit" className="w-full">Save Address</Button>
+        </form>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {addresses.length > 0 ? (
-          addresses.map(address => (
-            <Card key={address.id}>
+          addresses.map((address, index) => (
+            <Card key={index}>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">{address.name}</h3>
-                      {address.default && (
-                        <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">Default</span>
-                      )}
-                    </div>
-                    <p className="text-sm mt-2">{address.address}</p>
-                    <p className="text-sm">{address.city}, {address.state} - {address.pincode}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">Edit</Button>
-                    {!address.default && (
-                      <Button variant="destructive" size="sm">Delete</Button>
-                    )}
+                    <h3 className="font-medium">{address.name}</h3>
+                    <p className="text-sm mt-2">{address.street}</p>
+                    <p className="text-sm">{address.city}, {address.state} - {address.zipcode}</p>
+                    <p className="text-sm">{address.country}</p>
                   </div>
                 </div>
-                {!address.default && (
-                  <Button variant="link" className="mt-3 p-0 h-auto">Set as Default</Button>
-                )}
               </CardContent>
             </Card>
           ))
         ) : (
           <div className="col-span-2 p-4 text-center border rounded-lg">
-            <p>You haven't added any addresses yet.</p>
+            <p>No addresses found.</p>
           </div>
         )}
       </div>
@@ -454,10 +619,33 @@ const AddressBook = () => {
 };
 
 const ProfileSettings = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setUser(res.data))
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
+  }, []); // Corrected placement of dependency array
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">{error.message}</p>;
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Profile Settings</h2>
-      
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4 mb-6">
@@ -465,8 +653,8 @@ const ProfileSettings = () => {
               <User className="h-10 w-10 text-primary/60" />
             </div>
             <div>
-              <h3 className="font-medium text-lg">Aarti Patel</h3>
-              <p className="text-sm text-muted-foreground">aarti.patel@example.com</p>
+              <h3 className="font-medium text-lg">{user?.name}</h3>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
               <Button variant="link" className="p-0 h-auto mt-1">Change Profile Picture</Button>
             </div>
           </div>
@@ -474,45 +662,20 @@ const ProfileSettings = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">First Name</label>
-              <input type="text" value="Aarti" className="w-full p-2 rounded-md border" />
+              <input type="text" value={user?.firstName || ""} className="w-full p-2 rounded-md border" readOnly/>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Last Name</label>
-              <input type="text" value="Patel" className="w-full p-2 rounded-md border" />
+              <input type="text" value={user?.lastName || ""} className="w-full p-2 rounded-md border" readOnly/>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Email</label>
-              <input type="email" value="aarti.patel@example.com" className="w-full p-2 rounded-md border" />
+              <input type="email" value={user?.email || ""} className="w-full p-2 rounded-md border" readOnly/>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="text-sm font-medium">Phone Number</label>
-              <input type="tel" value="+91 9876543210" className="w-full p-2 rounded-md border" />
-            </div>
-          </div>
-          
-          <Button className="mt-6">Save Changes</Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Change Password</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Current Password</label>
-              <input type="password" className="w-full p-2 rounded-md border" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">New Password</label>
-              <input type="password" className="w-full p-2 rounded-md border" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Confirm New Password</label>
-              <input type="password" className="w-full p-2 rounded-md border" />
-            </div>
-            <Button>Update Password</Button>
+              <input type="tel" value={user?.phone || ""} className="w-full p-2 rounded-md border" readOnly/>
+            </div> */}
           </div>
         </CardContent>
       </Card>
@@ -520,12 +683,26 @@ const ProfileSettings = () => {
   );
 };
 
+//add route to shop page
+
+
+
 
 const CustomerDashboard = () => { 
   const [pageLoaded, setPageLoaded] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const token = localStorage.getItem("token");
   const [data, setData] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); // Redirect if token is missing
+    }
+  }, []);
+
+
 
 useEffect(() => {
   console.log(token);
@@ -558,6 +735,7 @@ useEffect(() => {
   }, []); 
 
 
+
   return (
     <div className={`min-h-screen transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="flex h-screen overflow-hidden">
@@ -588,14 +766,28 @@ useEffect(() => {
               <User className="h-5 w-5" />
               Profile
             </Link>
+            <Link to="/products" className={`flex items-center gap-3 rounded-lg px-3 py-2 text-foreground transition-all hover:bg-accent ${location.pathname === '/customer/dashboard/shop' ? 'bg-accent' : ''}`}>
+            <ShoppingBag className="h-5 w-5" />
+            Shop
+          </Link>
+
           </nav>
           <div className="p-4 border-t">
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/" className="flex items-center gap-2">
-                <LogOut className="h-5 w-5" />
-                Log Out
-              </Link>
-            </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start"
+            onClick={() => {
+              localStorage.removeItem("token"); // Remove token
+              navigate("/login"); // Redirect to login page
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <LogOut className="h-5 w-5" />
+              Log Out
+            </div>
+          </Button>
+
+
           </div>
         </aside>
         

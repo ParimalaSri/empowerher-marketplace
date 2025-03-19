@@ -17,6 +17,9 @@ import {
 } from '@/components/ui/dashboard/loading-state';
 import { useToast } from '@/components/ui/use-toast';
 import axios from "axios";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const DashboardOverview = () => {
   const { stats, loading, error } = useSellerStats();
@@ -180,34 +183,187 @@ const DashboardOverview = () => {
   );
 };
 
+// const ProductsManagement = () => {
+//   const { products, loading, error } = useSellerProducts();
+//   const { toast } = useToast();
+  
+//   useEffect(() => {
+//     if (error) {
+//       toast({
+//         title: "Error loading products",
+//         description: error.message,
+//         variant: "destructive",
+//       });
+//     }
+//   }, [error, toast]);
+  
+//   if (loading) {
+//     return <TableSkeleton rowCount={4} columnCount={5} />;
+//   }
+  
+//   return (
+//     <div className="space-y-6">
+//       <div className="flex justify-between items-center">
+//         <h2 className="text-2xl font-bold">Products</h2>
+//         <Button>
+//           <PlusCircle className="h-4 w-4 mr-2" />
+//           Add Product
+//         </Button>
+//       </div>
+      
+//       <Card>
+//         <CardContent className="p-0">
+//           <div className="overflow-x-auto">
+//             <table className="w-full">
+//               <thead>
+//                 <tr className="border-b">
+//                   <th className="text-left p-4">Product</th>
+//                   <th className="text-left p-4">Price</th>
+//                   <th className="text-left p-4">Stock</th>
+//                   <th className="text-left p-4">Sold</th>
+//                   <th className="text-left p-4">Actions</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {products.length > 0 ? (
+//                   products.map(product => (
+//                     <tr key={product.id} className="border-b hover:bg-muted/50">
+//                       <td className="p-4">{product.name}</td>
+//                       <td className="p-4">₹{product.price}</td>
+//                       <td className="p-4">{product.stock}</td>
+//                       <td className="p-4">{product.sold}</td>
+//                       <td className="p-4">
+//                         <div className="flex gap-2">
+//                           <Button variant="outline" size="sm">Edit</Button>
+//                           <Button variant="destructive" size="sm">Delete</Button>
+//                         </div>
+//                       </td>
+//                     </tr>
+//                   ))
+//                 ) : (
+//                   <tr>
+//                     <td colSpan={5} className="p-4 text-center">No products found</td>
+//                   </tr>
+//                 )}
+//               </tbody>
+//             </table>
+//           </div>
+//         </CardContent>
+//       </Card>
+//     </div>
+//   );
+// };
 const ProductsManagement = () => {
-  const { products, loading, error } = useSellerProducts();
-  const { toast } = useToast();
-  
+  const [products, setProducts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [productData, setProductData] = useState({
+    name: "",
+    price: "",
+    image: "",
+    category: "",
+    seller: "",
+    stock: "",
+    sold: "0",
+  });
+
+
   useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error loading products",
-        description: error.message,
-        variant: "destructive",
-      });
+    const token = localStorage.getItem("token");
+    
+        if (!token) {
+          console.error("No token found!");
+          setLoading(false);
+          return;
+        }
+    
+        axios
+          .get("http://127.0.0.1:5000/api/get-products", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((res) => {
+            console.log("Raw Response:", res);
+            setProducts(res.data|| []); // Ensure it's always an array
+            
+          })
+          .catch((error) => {
+            console.error("Error fetching wishlist:", error);
+            setError(error);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+
+   
+  }, []);
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    setProductData({ ...productData, [e.target.name]: e.target.value });
+  };
+
+  // Validate and add product
+  const handleAddProduct = async () => {
+    // Validation: Ensure required fields are not empty
+    if (!productData.name || !productData.category || !productData.seller) {
+      console.error("Missing required fields.");
+      alert("Please fill all required fields: Name, Category, and Seller.");
+      return;
     }
-  }, [error, toast]);
-  
-  if (loading) {
-    return <TableSkeleton rowCount={4} columnCount={5} />;
-  }
-  
+
+    const formattedProductData = {
+      ...productData,
+      price: Number(productData.price) || 0,
+      stock: Number(productData.stock) || 0,
+      sold: Number(productData.sold) || 0,
+    };
+
+    console.log("Sending Data:", formattedProductData);
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:5000/api/add-product",
+        formattedProductData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log("Product added successfully:", response.data);
+
+      // Update product list
+      setProducts([...products, response.data]);
+
+      // Close modal and reset fields
+      setIsDialogOpen(false);
+      setProductData({
+        name: "",
+        price: "",
+        image: "",
+        category: "",
+        seller: "",
+        stock: "",
+        sold: "0",
+      });
+    } catch (error) {
+      console.error("Error adding product:", error.response?.data || error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Products</h2>
-        <Button>
+        <Button onClick={() => setShowModal(true)}>
           <PlusCircle className="h-4 w-4 mr-2" />
           Add Product
         </Button>
       </div>
-      
+
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -222,40 +378,85 @@ const ProductsManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.length > 0 ? (
-                  products.map(product => (
-                    <tr key={product.id} className="border-b hover:bg-muted/50">
-                      <td className="p-4">{product.name}</td>
-                      <td className="p-4">₹{product.price}</td>
-                      <td className="p-4">{product.stock}</td>
-                      <td className="p-4">{product.sold}</td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">Edit</Button>
-                          <Button variant="destructive" size="sm">Delete</Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="p-4 text-center">No products found</td>
+                {products.map((product) => (
+                  <tr key={product.id} className="border-b hover:bg-muted/50">
+                    <td className="p-4">{product.name}</td>
+                    <td className="p-4">₹{product.price}</td>
+                    <td className="p-4">{product.stock}</td>
+                    <td className="p-4">{product.sold}</td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          Edit
+                        </Button>
+                        <Button variant="destructive" size="sm">
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Product Modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogTitle>Add New Product</DialogTitle>
+          <div className="space-y-4">
+            <Input name="name" placeholder="Product Name" onChange={handleInputChange} />
+            <Input name="price" placeholder="Price" type="number" onChange={handleInputChange} />
+            <Input name="image" placeholder="Image URL" onChange={handleInputChange} />
+            <Input name="category" placeholder="Category" onChange={handleInputChange} />
+            <Input name="seller" placeholder="Seller" onChange={handleInputChange} />
+            <Input name="stock" placeholder="Stock" type="number" onChange={handleInputChange} />
+            <Button onClick={handleAddProduct}>Add Product</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
-
 const OrdersManagement = () => {
-  const { orders, loading, error } = useSellerOrders();
+  const [orders, setOrders] = useState([]);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("all");
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    console.log("Token on Orders Management:", token);
+
+    if (!token) {
+      console.error("No token found!");
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:5000/api/seller-orders", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log("Fetched Orders:", res.data);
+        setOrders(res.data || []); // Ensure it's always an array
+      })
+      .catch((error) => {
+        console.error("Error fetching orders:", error);
+        setError(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
   useEffect(() => {
     if (error) {
       toast({
@@ -265,21 +466,28 @@ const OrdersManagement = () => {
       });
     }
   }, [error, toast]);
-  
+
   const filteredOrders = React.useMemo(() => {
+    console.log("Active Tab:", activeTab); // Debugging
+    console.log("All Orders:", orders); // Debugging
+
     if (activeTab === "all") return orders;
-    return orders.filter(order => order.status.toLowerCase() === activeTab);
+    return orders.filter(
+      (order) =>
+        order["Status"] &&
+        order["Status"].toLowerCase() === activeTab.toLowerCase()
+    );
   }, [orders, activeTab]);
-  
+
   if (loading) {
     return <TableSkeleton rowCount={4} columnCount={6} />;
   }
-  
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Orders</h2>
-      
-      <Tabs defaultValue="all" onValueChange={setActiveTab}>
+
+      <Tabs defaultValue="all" onValueChange={(value) => setActiveTab(value)}>
         <TabsList>
           <TabsTrigger value="all">All Orders</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -287,60 +495,67 @@ const OrdersManagement = () => {
           <TabsTrigger value="shipped">Shipped</TabsTrigger>
           <TabsTrigger value="delivered">Delivered</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value={activeTab} className="mt-4">
-          <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-4">Order ID</th>
-                      <th className="text-left p-4">Customer</th>
-                      <th className="text-left p-4">Product</th>
-                      <th className="text-left p-4">Amount</th>
-                      <th className="text-left p-4">Status</th>
-                      <th className="text-left p-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredOrders.length > 0 ? (
-                      filteredOrders.map(order => (
-                        <tr key={order.id} className="border-b hover:bg-muted/50">
-                          <td className="p-4">#{order.id}</td>
-                          <td className="p-4">{order.customer}</td>
-                          <td className="p-4">{order.product}</td>
-                          <td className="p-4">₹{order.amount}</td>
-                          <td className="p-4">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === 'Delivered' 
-                                ? 'bg-green-100 text-green-800' 
-                                : order.status === 'Processing' 
-                                ? 'bg-blue-100 text-blue-800'
-                                : order.status === 'Shipped'
-                                ? 'bg-purple-100 text-purple-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <Button variant="outline" size="sm">Details</Button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={6} className="p-4 text-center">No orders found</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
+
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-4">Order ID</th>
+                  <th className="text-left p-4">Customer</th>
+                  <th className="text-left p-4">Product</th>
+                  <th className="text-left p-4">Amount</th>
+                  <th className="text-left p-4">Status</th>
+                  <th className="text-left p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <tr
+                      key={order["Order ID"]}
+                      className="border-b hover:bg-muted/50"
+                    >
+                      <td className="p-4">#{order["Order ID"]}</td>
+                      <td className="p-4">{order["Customer"]}</td>
+                      <td className="p-4">{order["Product"]}</td>
+                      <td className="p-4">₹{order["Amount"]}</td>
+                      <td className="p-4">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            order["Status"]?.toLowerCase() === "delivered"
+                              ? "bg-green-100 text-green-800"
+                              : order["Status"]?.toLowerCase() === "processing"
+                              ? "bg-blue-100 text-blue-800"
+                              : order["Status"]?.toLowerCase() === "shipped"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {order["Status"]}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <Button variant="outline" size="sm">
+                          Details
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="p-4 text-center">
+                      No orders found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

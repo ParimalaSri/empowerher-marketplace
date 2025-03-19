@@ -72,7 +72,7 @@ export function useCustomerOrders() {
         setLoading(true);
         const data = await fetchData<typeof mockCustomerOrders>('/customer/orders');
         // Explicitly type cast the status field to ensure it matches CustomerOrder
-        const typedOrders = data.map(order => ({
+        const typedOrders = data.orders.map(order => ({
           ...order,
           status: order.status as 'Delivered' | 'Processing' | 'Shipped'
         }));

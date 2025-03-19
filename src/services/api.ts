@@ -13,7 +13,7 @@ export async function fetchData<T>(endpoint: string, options = {}): Promise<T> {
       '/seller/products': mockProducts,
       '/customer/stats': mockCustomerStats,
       '/customer/orders': mockCustomerOrders,
-      '/customer/wishlist': mockWishlist,
+      // '/customer/wishlist': mockWishlist,
       '/customer/addresses': mockAddresses,
     };
     
@@ -82,12 +82,12 @@ export const mockProducts = [
 
 export const mockCustomerStats = {
   orders: {
-    total: 12,
+    total: 3,
     recent: 3,
     period: 'this month'
   },
   wishlist: {
-    total: 8,
+    total: 4,
     added: 2,
     period: 'recently'
   },
@@ -108,11 +108,11 @@ export const mockCustomerOrders = [
   { id: 1236, date: '2023-10-05', items: 3, total: 1750, status: 'Shipped' },
 ];
 
-export const mockWishlist = [
-  { id: 1, name: 'Handcrafted Textile Wall Hanging', price: 1200, seller: 'Lakshmi Crafts' },
-  { id: 2, name: 'Organic Honey (500g)', price: 350, seller: 'Nature\'s Bounty' },
-  { id: 3, name: 'Silver Filigree Earrings', price: 1800, seller: 'Silver Heritage' },
-];
+// export const mockWishlist = [
+//   { id: 1, name: 'Handcrafted Textile Wall Hanging', price: 1200, seller: 'Lakshmi Crafts' },
+//   { id: 2, name: 'Organic Honey (500g)', price: 350, seller: 'Nature\'s Bounty' },
+//   { id: 3, name: 'Silver Filigree Earrings', price: 1800, seller: 'Silver Heritage' },
+// ];
 
 export const mockAddresses = [
   { id: 1, name: 'Home', address: '123 Main Street, Green Park', city: 'Delhi', state: 'Delhi', pincode: '110016', default: true },
