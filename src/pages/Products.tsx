@@ -90,7 +90,7 @@ const Products = () => {
   // Fetch product data from the backend
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:5000/api/products")  // Adjust endpoint if necessary
+      .get("https://empowerher-server.onrender.com/api/products")  // Adjust endpoint if necessary
       .then((res) => {
         console.log("Products Data:", res.data);
         setFilteredProducts(res.data); // Set fetched data as filtered products
@@ -123,7 +123,7 @@ const Products = () => {
   // Filter products based on price and category
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:5000/api/products")
+      .get("https://empowerher-server.onrender.com/api/products")
       .then((res) => {
         let filtered = res.data;
 

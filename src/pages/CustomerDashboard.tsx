@@ -53,7 +53,7 @@ const DashboardOverview = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/addresses", {
+      .get("https://empowerher-server.onrender.com/api/addresses", {
         headers: { Authorization: `Bearer ${token}` },
       })
       // .then((res) => setAddresses(res.data.addresses || []))
@@ -81,7 +81,7 @@ const DashboardOverview = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/customer/orders", {
+      .get("https://empowerher-server.onrender.com/api/customer/orders", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -111,7 +111,7 @@ const DashboardOverview = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/wishlist", {
+      .get("https://empowerher-server.onrender.com/api/wishlist", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -143,7 +143,7 @@ const DashboardOverview = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/customer/orders", {
+      .get("https://empowerher-server.onrender.com/api/customer/orders", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -297,7 +297,7 @@ const OrderHistory = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/customer/orders", {
+      .get("https://empowerher-server.onrender.com/api/customer/orders", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -427,7 +427,7 @@ const Wishlist = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/wishlist", {
+      .get("https://empowerher-server.onrender.com/api/wishlist", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -545,7 +545,7 @@ const AddressBook = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/addresses", {
+      .get("https://empowerher-server.onrender.com/api/addresses", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setAddresses(res.data.addresses || []))
@@ -561,7 +561,7 @@ const AddressBook = () => {
     e.preventDefault();
 
     axios
-      .post("http://127.0.0.1:5000/api/add-address", newAddress, {
+      .post("https://empowerher-server.onrender.com/api/add-address", newAddress, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -632,7 +632,7 @@ const ProfileSettings = () => {
     }
 
     axios
-      .get("http://127.0.0.1:5000/api/user/profile", {
+      .get("https://empowerher-server.onrender.com/api/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setUser(res.data))
@@ -713,7 +713,7 @@ useEffect(() => {
   }
 
   axios
-    .get("http://127.0.0.1:5000/user", {
+    .get("https://empowerher-server.onrender.com/user", {
       headers: {  Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
     .then((response) => {

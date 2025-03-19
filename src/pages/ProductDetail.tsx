@@ -73,7 +73,7 @@ const ProductDetail = () => {
     // Log only the selected fields
     console.log('Product added to cart:', JSON.stringify(selectedProduct, null, 2));
 
-    axios.post("http://127.0.0.1:5000/api/cart-add", selectedProduct, {
+    axios.post("https://empowerher-server.onrender.com/api/cart-add", selectedProduct, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`  // Send JWT token in Authorization header
@@ -118,7 +118,7 @@ const addToWishlist = () => {
   };
 
   axios
-    .post("http://127.0.0.1:5000/api/wishlist-add", selectedProduct, {
+    .post("https://empowerher-server.onrender.com/api/wishlist-add", selectedProduct, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

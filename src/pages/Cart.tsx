@@ -46,7 +46,7 @@ const Cart = () => {
       }
   
       axios
-        .get("http://127.0.0.1:5000/api/carts", {
+        .get("https://empowerher-server.onrender.com/api/carts", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
