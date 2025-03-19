@@ -280,7 +280,7 @@ const ProductsManagement = () => {
         }
     
         axios
-          .get("https://empowerher-server.onrender.com/api/get-products", {
+          .get("http://127.0.0.1:5000/api/get-products", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -326,7 +326,7 @@ const ProductsManagement = () => {
 
     try {
       const response = await axios.post(
-        "https://empowerher-server.onrender.com/api/add-product",
+        "http://127.0.0.1:5000/api/add-product",
         formattedProductData,
         {
           headers: { "Content-Type": "application/json" },
@@ -439,7 +439,7 @@ const OrdersManagement = () => {
     }
 
     axios
-      .get("https://empowerher-server.onrender.com/api/seller-orders", {
+      .get("http://127.0.0.1:5000/api/seller-orders", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -577,7 +577,7 @@ const SellerDashboard = () => {
     }
   
     axios
-      .get("https://empowerher-server.onrender.com/user", {
+      .get("http://127.0.0.1:5000/user", {
         headers: {  Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((response) => {

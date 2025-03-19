@@ -8,11 +8,14 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
+import axios from "axios";
 
 const Checkout = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   
   // Mock cart data - in a real app this would come from context/state
   const [cartItems] = useState([
@@ -49,20 +52,56 @@ const Checkout = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validation would go here
-    toast({
-      title: "Order Placed Successfully!",
-      description: "Your order has been confirmed. You will receive a confirmation email shortly.",
-    });
-    
-    // In a real app, this would submit the order to the backend
-    setTimeout(() => {
-      navigate('/');
-    }, 3000);
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      setError("Token not found");
+      toast({
+        title: "Authentication Error",
+        description: "Please log in to place an order.",
+        variant: "destructive",
+      });
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:5000/api/checkout", // Change URL for production
+        {}, // Body can be empty as cart is fetched from the backend
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      console.log("Raw Response:", res.data);
+  
+      toast({
+        title: "Order Placed Successfully!",
+        description: "Your order has been confirmed. You will receive a confirmation email shortly.",
+        variant: "success",
+      });
+  
+      // Redirect user after order placement
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
+    } catch (err) {
+      setError(err.message);
+  
+      toast({
+        title: "Error placing order",
+        description: err.response?.data?.error || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   return (
     <div className={`min-h-screen flex flex-col transition-opacity duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
